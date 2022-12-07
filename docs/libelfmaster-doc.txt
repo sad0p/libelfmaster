@@ -57,13 +57,44 @@ Table of Contents
   + ELF attributes such as those found in the `e_ident` (see ELF manpages) can be retrieved with "getter" functions that access 'elfobj_t' type objects.
     
     ++ Retrieving ELF architecture.
-       +++ libelfmaster utilizes enum type 'elf_arch_t' (defined in `libelfmaster.h`) which currently has three 
-	   integral constants: 'i386', 'x64', and 'unsupported'. Constant `i386` corresponds to 32-bit architecture, 
-           second 64-bit architecture and finally unsupported, for architectures libelfmaster does not recognize.
+       +++ libelfmaster utilizes enum type `elf_arch_t` (defined in `libelfmaster.h`) which currently has three 
+	   integral constants: `i386`, `x64`, and `unsupported`. Constant `i386` corresponds to Intel 32-bit architecture, 
+           second Intel 64-bit architecture and finally unsupported, for architectures libelfmaster does not recognize.
 
-           ++++ elf_arch_t elf_arch(elfobj_t *obt)
+           ++++ elf_arch_t elf_arch(elfobj_t *elfbin)
                 +++++ Arguments:
 		      ++++++ obj: A pointer of type elfobj_t that was initiated with `elf_open_object()`.
                 +++++ Return:
-                      Returns on of the enum type elf_arch_t constants (discussed above) to signify the architecture identified with the binary.
+                      Returns one of the enum type elf_arch_t constants (discussed above) to signify the architecture identified with the binary.
 
+    ++ Retrieving ELF class.
+       +++ libelfmaster utilizes enum type `elf_class_t` (defined in `libelfmaster.h`) which has two integral constants:
+           `elfclass64` and `elfclass32`. Constant `elfclass64` signifies the binary belongs to a 64-bit architecture and `elfclass32` signifies
+           a binary belonging to 64-bit architecture. Combined with `elf_arch()` you can gather the bus width and processor model. 
+	   
+	   ++++ elf_arch_t elf_class(elfobj_t *elfbin)
+                +++++ Arguments:
+		      ++++++ obj: A pointer of type elfobj_t that was initiated with `elf_open_object()`.
+                +++++ Return:
+		      Returns one of the enum type elf_class_t constants (discussed above) to signify the bus width of the processor the binary targets.
+    ++ Retrieving ELF machine:
+       +++ libelfmaster's `elf_machine(elfobj_t *elfbin)` will retrieve the 
+
+    ++ Retrieving ELF linking type information.
+       +++ libelfmaster utilizes enum type `elf_linking_type_t` (defined in `libelfmaster.h`) which has four integral constants:
+           `ELF_LINKING_DYNAMIC`, `ELF_LINKING_STATIC`, `ELF_LINKING_STATIC_PIE` and `ELF_LINKING_UNDEF`.
+            
+            Integral constant `ELF_LINKING_DYNAMIC` signifies a binary that's is dynamically linked. `ELF_LINKING_STATIC` signifies
+            a binary statically linked and `ELF_LINKING_STATIC_PIE` signifies a binary that is statically linked and position independent.
+
+            Integral constant `ELF_LINKING_UNDEF` signifies `libelfmaster` did not identify the linking type used by the target binary. In cases
+            where `ELF_LINKING_UNDEF` is returned the binary could possibly be an object or core file.
+
+            ++++ elf_linking_type_t elf_linking_type(elfobj_t *elfbin)
+                 +++++ Arguments:
+      		       ++++++ obj: A pointer of type elfobj_t that was initiated with `elf_open_object()`.
+                 +++++ Return:
+		       Returns one of the constants type of `elf_linking_type_t` (discussed above) that describes the linking type libelfmaster
+                       recognized.
+
+    ++ Retrieving 
