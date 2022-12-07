@@ -67,3 +67,55 @@ func TestElfArch(t *testing.T) {
 		}
 	}
 }
+
+type elfClassCases struct {
+	path string
+	want string
+}
+
+var elfClassTests = []elfClassCases {
+	elfClassCases{"./test_bins/helloworld-intel64", "elfclass64"},
+	elfClassCases{"./test_bins/helloworld-intel32", "elfclass32"},
+}
+
+func TestElfClass(t *testing.T) {
+	for _, test := range elfClassTests {
+		var obj ElfObj
+		if err := ElfOpenObject(test.path, &obj, ELF_LOAD_F_FORENSICS); err != nil {
+			t.Errorf("ElfOpenObject() failed while testing ElfClass()")
+		}	
+		
+		got := obj.ElfClass()
+		if got != test.want {
+			t.Errorf("TestElfClass(): got %s and wanted %s", got, test.want)
+		}	
+	}
+}
+
+type elfLinkTypeCases struct{
+	path string
+	want string
+}
+
+var elfLinkTypeTests = []elfLinkTypeCases {
+	elfLinkTypeCases{"./test_bins/helloworld-intel32", "dynamic"},
+	elfLinkTypeCases{"./test_bins/helloworld-intel64", "dynamic"},
+	elfLinkTypeCases{"./test_bins/helloworld-intel32-static-pie", "static-pie"},
+	elfLinkTypeCases{"./test_bins/helloworld-intel64-static-pie", "static-pie"},
+	elfLinkTypeCases{"./test_bins/helloworld-intel32-static", "static"},
+	elfLinkTypeCases{"./test_bins/helloworld-intel64-static", "static"},
+}
+
+func TestElfLinkingType(t *testing.T) {
+	for _, test := range elfLinkTypeTests {
+		var obj ElfObj
+		if err := ElfOpenObject(test.path, &obj, ELF_LOAD_F_FORENSICS); err != nil {
+			t.Errorf("ElfOpenObject() failed while testing ElfLinkingType()")
+		}	
+		
+		got := obj.ElfLinkingType()
+		if got != test.want {
+			t.Errorf("TestElfLinkingType(): got %s and wanted %s for file %s", got, test.want, test.path)
+		}	
+	}
+}

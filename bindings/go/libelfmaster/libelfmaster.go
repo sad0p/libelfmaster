@@ -27,6 +27,16 @@ int elf_arch_w(elfobj_t *obj)
 	return (int)elf_arch(obj);
 	
 }
+
+int elf_class_w(elfobj_t *obj)
+{
+	return (int)elf_class(obj);
+}
+
+int elf_linking_type_w(elfobj_t *obj)
+{
+	return (int)elf_linking_type(obj);
+}
 */
 import "C"
 
@@ -63,7 +73,7 @@ func ElfOpenObject(path string, o *ElfObj, flags uint64) error {
 /*
 	Possible portability issue. 
 	A change in enum order in the src can potentially break the implementation.
-	TODO: Figure out a more portable solution
+	TODO: Figure out a more portable solution ElfArch(), ElfClass()
 */
 
 func (o *ElfObj) ElfArch() string {
@@ -78,3 +88,26 @@ func (o *ElfObj) ElfArch() string {
 	}
 }
 
+func (o *ElfObj) ElfClass() string {
+	v := int(C.elf_class_w(&o.obj))
+	switch v {
+	case 0:
+		return "elfclass64"
+	default:
+		return "elfclass32"
+	}
+}
+
+func (o *ElfObj) ElfLinkingType() string {
+	v := int(C.elf_linking_type_w(&o.obj))
+	switch v {
+	case 0:
+		return "dynamic"
+	case 1:
+		return "static"
+	case 2:
+		return "static-pie"
+	default:
+		return "undefined"
+	}
+}
