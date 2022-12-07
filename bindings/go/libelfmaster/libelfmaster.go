@@ -1,21 +1,34 @@
 package libelfmaster
 
-// #cgo CFLAGS: -I /opt/elfmaster/include
-// #cgo LDFLAGS: -L /opt/elfmaster/lib -lelfmaster
-// #define _GNU_SOURCE
-// #include <stdio.h>
-// #include <stdlib.h>
-// #include <elf.h>
-// #include <sys/types.h>
-// #include <search.h>
-// #include <sys/time.h>
-// #include "libelfmaster.h"
-// int elf_open_object_w(const char *path, elfobj_t *obj, uint64_t flags, elf_error_t *error) {
-//     return (int)elf_open_object(path, obj, flags, error);
-// }
+import( 
+	"unsafe"
+	"errors"
+)
+
+/* 
+#cgo CFLAGS: -I /opt/elfmaster/include
+#cgo LDFLAGS: -L /opt/elfmaster/lib -lelfmaster
+#define _GNU_SOURCE
+#include <stdio.h>
+#include <stdlib.h>
+#include <elf.h>
+#include <sys/types.h>
+#include <search.h>
+#include <sys/time.h>
+#include "libelfmaster.h"
+
+int elf_open_object_w(const char *path, elfobj_t *obj, uint64_t flags, elf_error_t *error) 
+{
+	return (int)elf_open_object(path, obj, flags, error);
+}
+
+int elf_arch_w(elfobj_t *obj) 
+{
+	return (int)elf_arch(obj);
+	
+}
+*/
 import "C"
-import "unsafe"
-import "errors"
 
 type ElfObj struct {
 	obj C.elfobj_t
@@ -47,4 +60,21 @@ func ElfOpenObject(path string, o *ElfObj, flags uint64) error {
 	}
 }
 
+/*
+	Possible portability issue. 
+	A change in enum order in the src can potentially break the implementation.
+	TODO: Figure out a more portable solution
+*/
+
+func (o *ElfObj) ElfArch() string {
+	v := int(C.elf_arch_w(&o.obj))
+	switch v {
+	case 0:
+		return "i386"
+	case 1:
+		return "x64"
+	default:
+		return "unsupported"
+	}
+}
 

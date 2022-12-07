@@ -43,3 +43,27 @@ func TestElfOpenObject(t *testing.T) {
 	}
 }
 
+type elfArchCases struct {
+	path string
+	want string
+}
+
+var elfArchTests = []elfArchCases {
+	elfArchCases{"./test_bins/helloworld-intel32", "i386"},
+	elfArchCases{"./test_bins/helloworld-intel64", "x64"},
+	elfArchCases{"./test_bins/helloworld-arm64", "unsupported"},
+}
+
+func TestElfArch(t *testing.T) {
+	for _, test := range elfArchTests {
+		var obj ElfObj
+		if err := ElfOpenObject(test.path, &obj, ELF_LOAD_F_FORENSICS); err != nil {
+			t.Errorf("ElfOpenObject() failed while testing ElfArch()")
+		}
+
+		got := obj.ElfArch()
+		if got != test.want {
+			t.Errorf("TestElfArch(): got %s and wanted %s", got, test.want)
+		}
+	}
+}
