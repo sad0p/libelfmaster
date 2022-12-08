@@ -3,6 +3,7 @@ package libelfmaster
 import(
 	"testing"
 	"reflect"
+	"debug/elf"
 )
 
 
@@ -116,6 +117,31 @@ func TestElfLinkingType(t *testing.T) {
 		got := obj.ElfLinkingType()
 		if got != test.want {
 			t.Errorf("TestElfLinkingType(): got %s and wanted %s for file %s", got, test.want, test.path)
+		}	
+	}
+}
+
+type elfMachineCase struct{
+	path string
+	want string
+}
+
+var elfMachineTests = []elfMachineCase{
+	elfMachineCase{"./test_bins/helloworld-intel32", "EM_386"},
+	elfMachineCase{"./test_bins/helloworld-intel64", "EM_X86_64"},
+	elfMachineCase{"./test_bins/helloworld-arm64", "EM_AARCH64"},
+}
+
+func TestElfMachine(t *testing.T) {
+	for _, test := range elfMachineTests {
+		var obj ElfObj
+		if err := ElfOpenObject(test.path, &obj, ELF_LOAD_F_FORENSICS); err != nil {
+			t.Errorf("ElfOpenObject() failed while testing ElfMachine()")
+		}	
+		
+		got := elf.Machine(obj.ElfMachine()).String()
+		if got != test.want {
+			t.Errorf("TestElfMachine(): got %s and wanted %s for file %s", got, test.want, test.path)
 		}	
 	}
 }

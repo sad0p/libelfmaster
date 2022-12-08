@@ -111,3 +111,7 @@ func (o *ElfObj) ElfLinkingType() string {
 		return "undefined"
 	}
 }
+
+func (o *ElfObj) ElfMachine() uint16 {
+	return uint16(C.elf_machine(&o.obj))
+}
