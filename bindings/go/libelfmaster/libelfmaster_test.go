@@ -1,20 +1,19 @@
 package libelfmaster
 
-import(
-	"testing"
-	"reflect"
+import (
 	"debug/elf"
+	"reflect"
+	"testing"
 )
-
 
 type checkError uint32
 
-const(
-	 lookForNil   checkError = 1
-	 lookForError checkError = 2
+const (
+	lookForNil   checkError = 1
+	lookForError checkError = 2
 )
 
-type elfOpenObjectCases struct{
+type elfOpenObjectCases struct {
 	path string
 	want checkError
 }
@@ -28,12 +27,12 @@ var elfOpenTests = []elfOpenObjectCases{
 func TestElfOpenObject(t *testing.T) {
 	for _, test := range elfOpenTests {
 		var obj ElfObj
-		got := ElfOpenObject(test.path, &obj, ELF_LOAD_F_FORENSICS)
+		got := obj.ElfOpenObject(test.path, ELF_LOAD_F_FORENSICS)
 		switch {
 		case test.want == lookForNil:
 			if got != nil {
 				t.Errorf("got %v wanted nil", got)
-			}		
+			}
 
 		case test.want == lookForError:
 			wt := "*errors.errorString"
@@ -49,7 +48,7 @@ type elfArchCases struct {
 	want string
 }
 
-var elfArchTests = []elfArchCases {
+var elfArchTests = []elfArchCases{
 	elfArchCases{"./test_bins/helloworld-intel32", "i386"},
 	elfArchCases{"./test_bins/helloworld-intel64", "x64"},
 	elfArchCases{"./test_bins/helloworld-arm64", "unsupported"},
@@ -58,7 +57,7 @@ var elfArchTests = []elfArchCases {
 func TestElfArch(t *testing.T) {
 	for _, test := range elfArchTests {
 		var obj ElfObj
-		if err := ElfOpenObject(test.path, &obj, ELF_LOAD_F_FORENSICS); err != nil {
+		if err := obj.ElfOpenObject(test.path, ELF_LOAD_F_FORENSICS); err != nil {
 			t.Errorf("ElfOpenObject() failed while testing ElfArch()")
 		}
 
@@ -74,7 +73,7 @@ type elfClassCases struct {
 	want string
 }
 
-var elfClassTests = []elfClassCases {
+var elfClassTests = []elfClassCases{
 	elfClassCases{"./test_bins/helloworld-intel64", "elfclass64"},
 	elfClassCases{"./test_bins/helloworld-intel32", "elfclass32"},
 }
@@ -82,23 +81,23 @@ var elfClassTests = []elfClassCases {
 func TestElfClass(t *testing.T) {
 	for _, test := range elfClassTests {
 		var obj ElfObj
-		if err := ElfOpenObject(test.path, &obj, ELF_LOAD_F_FORENSICS); err != nil {
+		if err := obj.ElfOpenObject(test.path, ELF_LOAD_F_FORENSICS); err != nil {
 			t.Errorf("ElfOpenObject() failed while testing ElfClass()")
-		}	
-		
+		}
+
 		got := obj.ElfClass()
 		if got != test.want {
 			t.Errorf("TestElfClass(): got %s and wanted %s", got, test.want)
-		}	
+		}
 	}
 }
 
-type elfLinkTypeCases struct{
+type elfLinkTypeCases struct {
 	path string
 	want string
 }
 
-var elfLinkTypeTests = []elfLinkTypeCases {
+var elfLinkTypeTests = []elfLinkTypeCases{
 	elfLinkTypeCases{"./test_bins/helloworld-intel32", "dynamic"},
 	elfLinkTypeCases{"./test_bins/helloworld-intel64", "dynamic"},
 	elfLinkTypeCases{"./test_bins/helloworld-intel32-static-pie", "static-pie"},
@@ -110,18 +109,18 @@ var elfLinkTypeTests = []elfLinkTypeCases {
 func TestElfLinkingType(t *testing.T) {
 	for _, test := range elfLinkTypeTests {
 		var obj ElfObj
-		if err := ElfOpenObject(test.path, &obj, ELF_LOAD_F_FORENSICS); err != nil {
+		if err := obj.ElfOpenObject(test.path, ELF_LOAD_F_FORENSICS); err != nil {
 			t.Errorf("ElfOpenObject() failed while testing ElfLinkingType()")
-		}	
-		
+		}
+
 		got := obj.ElfLinkingType()
 		if got != test.want {
 			t.Errorf("TestElfLinkingType(): got %s and wanted %s for file %s", got, test.want, test.path)
-		}	
+		}
 	}
 }
 
-type elfMachineCase struct{
+type elfMachineCase struct {
 	path string
 	want string
 }
@@ -135,13 +134,13 @@ var elfMachineTests = []elfMachineCase{
 func TestElfMachine(t *testing.T) {
 	for _, test := range elfMachineTests {
 		var obj ElfObj
-		if err := ElfOpenObject(test.path, &obj, ELF_LOAD_F_FORENSICS); err != nil {
+		if err := obj.ElfOpenObject(test.path, ELF_LOAD_F_FORENSICS); err != nil {
 			t.Errorf("ElfOpenObject() failed while testing ElfMachine()")
-		}	
-		
+		}
+
 		got := elf.Machine(obj.ElfMachine()).String()
 		if got != test.want {
 			t.Errorf("TestElfMachine(): got %s and wanted %s for file %s", got, test.want, test.path)
-		}	
+		}
 	}
 }
