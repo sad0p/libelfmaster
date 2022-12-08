@@ -81,8 +81,7 @@ func (o *ElfObj) ElfCloseObject() {
 */
 
 func (o *ElfObj) ElfArch() string {
-	v := int(C.elf_arch_w(&o.obj))
-	switch v {
+	switch v := int(C.elf_arch_w(&o.obj)); v {
 	case 0:
 		return "i386"
 	case 1:
@@ -93,8 +92,7 @@ func (o *ElfObj) ElfArch() string {
 }
 
 func (o *ElfObj) ElfClass() string {
-	v := int(C.elf_class_w(&o.obj))
-	switch v {
+	switch v := int(C.elf_class_w(&o.obj)); v {
 	case 0:
 		return "elfclass64"
 	default:
@@ -103,8 +101,7 @@ func (o *ElfObj) ElfClass() string {
 }
 
 func (o *ElfObj) ElfLinkingType() string {
-	v := int(C.elf_linking_type_w(&o.obj))
-	switch v {
+	switch v := int(C.elf_linking_type_w(&o.obj)); v {
 	case 0:
 		return "dynamic"
 	case 1:
