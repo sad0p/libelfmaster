@@ -167,8 +167,8 @@ func TestElfInterpreterPath(t *testing.T) {
 		if err := obj.ElfOpenObject(test.path, ELF_LOAD_F_FORENSICS); err != nil {
 			t.Errorf("ElfOpenObject() failed while testing ElfMachine()")
 		}
-
-		got := obj.ElfInterpreterPath()
+		
+		got, _ := obj.ElfInterpreterPath()
 		if got != test.want {
 			t.Errorf("TestElfMachine(): got %s and wanted %s for file %s", got, test.want, test.path)
 		}

@@ -120,6 +120,13 @@ func (o *ElfObj) ElfMachine() uint16 {
 	return uint16(C.elf_machine(&o.obj))
 }
 
-func (o *ElfObj) ElfInterpreterPath() string {
-	return C.GoString(C.elf_interpreter_path(&o.obj))
+func (o *ElfObj) ElfInterpreterPath() (string, error) {
+	switch v := C.GoString(C.elf_interpreter_path(&o.obj)); len(v) {
+	case 0:
+		return "", errors.New("No interpreter string present")
+	default:
+		return v, nil
+	}
 }
+
+
