@@ -119,3 +119,7 @@ func (o *ElfObj) ElfLinkingType() string {
 func (o *ElfObj) ElfMachine() uint16 {
 	return uint16(C.elf_machine(&o.obj))
 }
+
+func (o *ElfObj) ElfInterpreterPath() string {
+	return C.GoString(C.elf_interpreter_path(&o.obj))
+}

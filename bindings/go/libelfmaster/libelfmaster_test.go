@@ -144,3 +144,33 @@ func TestElfMachine(t *testing.T) {
 		}
 	}
 }
+
+
+type genericCase struct {
+	path string
+	want string
+}
+
+var elfInterpreterPathTests = []genericCase{
+	genericCase{"./test_bins/helloworld-intel32", "/lib/ld-linux.so.2"},
+	genericCase{"./test_bins/helloworld-intel64", "/lib64/ld-linux-x86-64.so.2"},
+	genericCase{"./test_bins/helloworld-intel32-static", ""},
+	genericCase{"./test_bins/helloworld-intel64-static", ""},
+	genericCase{"./test_bins/helloworld-intel32-static-pie", ""},
+	genericCase{"./test_bins/helloworld-intel64-static-pie", ""},
+	genericCase{"./test_bins/helloworld-arm64", ""},
+}
+
+func TestElfInterpreterPath(t *testing.T) {
+	for _, test := range elfInterpreterPathTests {
+		var obj ElfObj
+		if err := obj.ElfOpenObject(test.path, ELF_LOAD_F_FORENSICS); err != nil {
+			t.Errorf("ElfOpenObject() failed while testing ElfMachine()")
+		}
+
+		got := obj.ElfInterpreterPath()
+		if got != test.want {
+			t.Errorf("TestElfMachine(): got %s and wanted %s for file %s", got, test.want, test.path)
+		}
+	}
+}
