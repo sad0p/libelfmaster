@@ -145,7 +145,7 @@ func TestElfInterpreterPath(t *testing.T) {
 	for _, test := range elfInterpreterPathTests {
 		var obj ElfObj
 		if err := obj.ElfOpenObject(test.path, ELF_LOAD_F_FORENSICS); err != nil {
-			t.Errorf("ElfOpenObject() failed while testing ElfMachine()")
+			t.Errorf("ElfOpenObject() failed while testing ElfInterpreterPath()")
 		}
 		
 		got, _ := obj.ElfInterpreterPath()
