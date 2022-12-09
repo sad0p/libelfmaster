@@ -43,15 +43,15 @@ func TestElfOpenObject(t *testing.T) {
 	}
 }
 
-type elfArchCases struct {
+type genericCase struct {
 	path string
 	want string
 }
 
-var elfArchTests = []elfArchCases{
-	elfArchCases{"./test_bins/helloworld-intel32", "i386"},
-	elfArchCases{"./test_bins/helloworld-intel64", "x64"},
-	elfArchCases{"./test_bins/helloworld-arm64", "unsupported"},
+var elfArchTests = []genericCase{
+	genericCase{"./test_bins/helloworld-intel32", "i386"},
+	genericCase{"./test_bins/helloworld-intel64", "x64"},
+	genericCase{"./test_bins/helloworld-arm64", "unsupported"},
 }
 
 func TestElfArch(t *testing.T) {
@@ -68,14 +68,9 @@ func TestElfArch(t *testing.T) {
 	}
 }
 
-type elfClassCases struct {
-	path string
-	want string
-}
-
-var elfClassTests = []elfClassCases{
-	elfClassCases{"./test_bins/helloworld-intel64", "elfclass64"},
-	elfClassCases{"./test_bins/helloworld-intel32", "elfclass32"},
+var elfClassTests = []genericCase{
+	genericCase{"./test_bins/helloworld-intel64", "elfclass64"},
+	genericCase{"./test_bins/helloworld-intel32", "elfclass32"},
 }
 
 func TestElfClass(t *testing.T) {
@@ -92,18 +87,13 @@ func TestElfClass(t *testing.T) {
 	}
 }
 
-type elfLinkTypeCases struct {
-	path string
-	want string
-}
-
-var elfLinkTypeTests = []elfLinkTypeCases{
-	elfLinkTypeCases{"./test_bins/helloworld-intel32", "dynamic"},
-	elfLinkTypeCases{"./test_bins/helloworld-intel64", "dynamic"},
-	elfLinkTypeCases{"./test_bins/helloworld-intel32-static-pie", "static-pie"},
-	elfLinkTypeCases{"./test_bins/helloworld-intel64-static-pie", "static-pie"},
-	elfLinkTypeCases{"./test_bins/helloworld-intel32-static", "static"},
-	elfLinkTypeCases{"./test_bins/helloworld-intel64-static", "static"},
+var elfLinkTypeTests = []genericCase{
+	genericCase{"./test_bins/helloworld-intel32", "dynamic"},
+	genericCase{"./test_bins/helloworld-intel64", "dynamic"},
+	genericCase{"./test_bins/helloworld-intel32-static-pie", "static-pie"},
+	genericCase{"./test_bins/helloworld-intel64-static-pie", "static-pie"},
+	genericCase{"./test_bins/helloworld-intel32-static", "static"},
+	genericCase{"./test_bins/helloworld-intel64-static", "static"},
 }
 
 func TestElfLinkingType(t *testing.T) {
@@ -120,15 +110,10 @@ func TestElfLinkingType(t *testing.T) {
 	}
 }
 
-type elfMachineCase struct {
-	path string
-	want string
-}
-
-var elfMachineTests = []elfMachineCase{
-	elfMachineCase{"./test_bins/helloworld-intel32", "EM_386"},
-	elfMachineCase{"./test_bins/helloworld-intel64", "EM_X86_64"},
-	elfMachineCase{"./test_bins/helloworld-arm64", "EM_AARCH64"},
+var elfMachineTests = []genericCase{
+	genericCase{"./test_bins/helloworld-intel32", "EM_386"},
+	genericCase{"./test_bins/helloworld-intel64", "EM_X86_64"},
+	genericCase{"./test_bins/helloworld-arm64", "EM_AARCH64"},
 }
 
 func TestElfMachine(t *testing.T) {
@@ -143,12 +128,6 @@ func TestElfMachine(t *testing.T) {
 			t.Errorf("TestElfMachine(): got %s and wanted %s for file %s", got, test.want, test.path)
 		}
 	}
-}
-
-
-type genericCase struct {
-	path string
-	want string
 }
 
 var elfInterpreterPathTests = []genericCase{
