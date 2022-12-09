@@ -194,12 +194,14 @@ func TestElfPhdrTableSize(t *testing.T) {
 	for _, test := range elfPhdrTableSizeTests {
 		var obj ElfObj
 		if err := obj.ElfOpenObject(test.path, ELF_LOAD_F_FORENSICS); err != nil {
-			t.Errorf("ElfOpenObject() failed while testing ElfEhdrSize()")
+			t.Errorf("ElfOpenObject() failed while testing ElfPhdrTableSize()")
 		}
 		
 		got := strconv.FormatUint(uint64(obj.ElfPhdrTableSize()), 10)
 		if got != test.want {
-			t.Errorf("TestElfEhdrSize(): got %s and wanted %s for file %s", got, test.want, test.path)
+			t.Errorf("TestElfPhdrTableSize(): got %s and wanted %s for file %s", got, test.want, test.path)
 		}
 	}
 }
+
+
