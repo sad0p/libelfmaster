@@ -170,7 +170,7 @@ func TestElfEhdrSize(t *testing.T) {
 	for _, test := range elfEhdrSizeTests {
 		var obj ElfObj
 		if err := obj.ElfOpenObject(test.path, ELF_LOAD_F_FORENSICS); err != nil {
-			t.Errorf("ElfOpenObject() failed while testing TestElfEhdrSize()")
+			t.Errorf("ElfOpenObject() failed while testing ElfEhdrSize()")
 		}
 		
 		got := obj.ElfEhdrSize()
