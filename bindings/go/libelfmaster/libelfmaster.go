@@ -126,4 +126,6 @@ func (o *ElfObj) ElfInterpreterPath() (string, error) {
 	}
 }
 
-
+func (o *ElfObj) ElfEhdrSize() uint16 {
+	return uint16(C.elf_ehdr_size(&o.obj))
+}

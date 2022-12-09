@@ -3,6 +3,7 @@ package libelfmaster
 import (
 	"debug/elf"
 	"reflect"
+	"strconv"
 	"testing"
 )
 
@@ -150,6 +151,30 @@ func TestElfInterpreterPath(t *testing.T) {
 		got, _ := obj.ElfInterpreterPath()
 		if got != test.want {
 			t.Errorf("TestElfMachine(): got %s and wanted %s for file %s", got, test.want, test.path)
+		}
+	}
+}
+
+var elfEhdrSizeTests = []genericCase{
+	genericCase{"./test_bins/helloworld-intel32", "52"},
+	genericCase{"./test_bins/helloworld-intel64", "64"},
+	genericCase{"./test_bins/helloworld-intel32-static", "52"},
+	genericCase{"./test_bins/helloworld-intel64-static", "64"},
+	genericCase{"./test_bins/helloworld-intel32-static-pie", "52"},
+	genericCase{"./test_bins/helloworld-intel64-static-pie", "64"},
+	genericCase{"./test_bins/helloworld-arm64", "64"},
+}
+
+func TestElfEhdrSize(t *testing.T) {
+	for _, test := range elfEhdrSizeTests {
+		var obj ElfObj
+		if err := obj.ElfOpenObject(test.path, ELF_LOAD_F_FORENSICS); err != nil {
+			t.Errorf("ElfOpenObject() failed while testing TestElfEhdrSize()")
+		}
+		
+		got := obj.ElfEhdrSize()
+		if strconv.FormatUint(uint64(got), 10) != test.want {
+			t.Errorf("TestElfEhdrSize(): got %d and wanted %s for file %s", got, test.want, test.path)
 		}
 	}
 }
