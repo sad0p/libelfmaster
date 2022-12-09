@@ -178,3 +178,27 @@ func TestElfEhdrSize(t *testing.T) {
 		}
 	}
 }
+
+var elfPhdrTableSizeTests = []genericCase{
+	genericCase{"./test_bins/helloworld-intel32", "384"},
+	genericCase{"./test_bins/helloworld-intel64", "728"},
+	genericCase{"./test_bins/helloworld-intel32-static", "288"},
+	genericCase{"./test_bins/helloworld-intel64-static", "560"},
+	genericCase{"./test_bins/helloworld-intel32-static-pie", "352"},
+	genericCase{"./test_bins/helloworld-intel64-static-pie", "672"},
+	genericCase{"./test_bins/helloworld-arm64", "392"},
+}
+
+func TestElfPhdrTableSize(t *testing.T) {
+	for _, test := range elfPhdrTableSizeTests {
+		var obj ElfObj
+		if err := obj.ElfOpenObject(test.path, ELF_LOAD_F_FORENSICS); err != nil {
+			t.Errorf("ElfOpenObject() failed while testing ElfEhdrSize()")
+		}
+		
+		got := strconv.FormatUint(uint64(obj.ElfPhdrTableSize()), 10)
+		if got != test.want {
+			t.Errorf("TestElfEhdrSize(): got %s and wanted %s for file %s", got, test.want, test.path)
+		}
+	}
+}
