@@ -150,7 +150,8 @@ func TestElfInterpreterPath(t *testing.T) {
 		
 		got, _ := obj.ElfInterpreterPath()
 		if got != test.want {
-			t.Errorf("TestElfMachine(): got %s and wanted %s for file %s", got, test.want, test.path)
+			t.Errorf("TestElfInterpreterPath(): got %s and wanted %s for file %s", got, 
+			test.want, test.path)
 		}
 	}
 }
