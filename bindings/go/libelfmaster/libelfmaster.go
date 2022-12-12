@@ -3,6 +3,7 @@ package libelfmaster
 import (
 	"errors"
 	"unsafe"
+	"fmt"
 )
 
 /*
@@ -132,4 +133,34 @@ func (o *ElfObj) ElfEhdrSize() uint16 {
 
 func (o *ElfObj) ElfPhdrTableSize() uint16 {
 	return uint16(C.elf_phdr_table_size(&o.obj))
+}
+
+func (o *ElfObj) ElfDataFilesz() uint64 {
+	return uint64(C.elf_data_filesz(&o.obj))
+}
+
+func (o *ElfObj) ElfEntryPoint() uint64 {
+	return uint64(C.elf_entry_point(&o.obj))
+}
+
+func (o *ElfObj) ElfType() uint32 {
+	return uint32(C.elf_type(&o.obj))
+}
+
+func (o *ElfObj) ElfSize() uint64 {
+	return uint64(C.elf_size(&o.obj))
+}
+
+func (o *ElfObj) ElfOffsetPointerSlice(off uint64, length uint64) ([]byte, error) {
+	if m := off + length; o.ElfSize() < m {
+		s := fmt.Sprintf("ElfSize() < m => %d < %d", o.ElfSize(), m)
+		return nil, errors.New(s)
+	}else {
+		p := (* byte)(unsafe.Pointer(C.elf_offset_pointer(&o.obj, C.uint64_t(off))))
+		return unsafe.Slice(p, length), nil		
+	}
+}
+
+func (o *ElfObj) ElfOffsetPointer(off uint64) unsafe.Pointer {
+	return unsafe.Pointer(C.elf_offset_pointer(&o.obj, C.uint64_t(off)))
 }
