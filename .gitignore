@@ -9,3 +9,6 @@ Makefile
 
 # No .build files
 *.build
+
+# No Goland IDE files
+.idea/
