@@ -10,6 +10,16 @@ import (
 	"unsafe"
 )
 
+const (
+	TESTBIN_HELLOWORLD_INTEL64            = "./test_bins/helloworld-intel64"
+	TESTBIN_HELLOWORLD_INTEL32            = "./test_bins/helloworld-intel32"
+	TESTBIN_HELLOWORLD_INTEL64_STATIC     = "./test_bins/helloworld-intel64-static"
+	TESTBIN_HELLOWORLD_INTEL32_STATIC     = "./test_bins/helloworld-intel32-static"
+	TESTBIN_HELLOWORLD_INTEL64_STATIC_PIE = "./test_bins/helloworld-intel64-static-pie"
+	TESTBIN_HELLOWORLD_INTEL32_STATIC_PIE = "./test_bins/helloworld-intel32-static-pie"
+	TESTBIN_HELLOWORLD_ARM64              = "./test_bins/helloworld-arm64"
+)
+
 type checkError uint32
 
 const (
@@ -53,9 +63,9 @@ type genericCase struct {
 }
 
 var elfArchTests = []genericCase{
-	{"./test_bins/helloworld-intel32", "i386"},
-	{"./test_bins/helloworld-intel64", "x64"},
-	{"./test_bins/helloworld-arm64", "unsupported"},
+	{TESTBIN_HELLOWORLD_INTEL32, "i386"},
+	{TESTBIN_HELLOWORLD_INTEL64, "x64"},
+	{TESTBIN_HELLOWORLD_ARM64, "unsupported"},
 }
 
 func TestElfArch(t *testing.T) {
@@ -73,8 +83,8 @@ func TestElfArch(t *testing.T) {
 }
 
 var elfClassTests = []genericCase{
-	{"./test_bins/helloworld-intel64", "elfclass64"},
-	{"./test_bins/helloworld-intel32", "elfclass32"},
+	{TESTBIN_HELLOWORLD_INTEL64, "elfclass64"},
+	{TESTBIN_HELLOWORLD_INTEL32, "elfclass32"},
 }
 
 func TestElfClass(t *testing.T) {
@@ -92,12 +102,12 @@ func TestElfClass(t *testing.T) {
 }
 
 var elfLinkTypeTests = []genericCase{
-	{"./test_bins/helloworld-intel32", "dynamic"},
-	{"./test_bins/helloworld-intel64", "dynamic"},
-	{"./test_bins/helloworld-intel32-static-pie", "static-pie"},
-	{"./test_bins/helloworld-intel64-static-pie", "static-pie"},
-	{"./test_bins/helloworld-intel32-static", "static"},
-	{"./test_bins/helloworld-intel64-static", "static"},
+	{TESTBIN_HELLOWORLD_INTEL32, "dynamic"},
+	{TESTBIN_HELLOWORLD_INTEL64, "dynamic"},
+	{TESTBIN_HELLOWORLD_INTEL32_STATIC_PIE, "static-pie"},
+	{TESTBIN_HELLOWORLD_INTEL64_STATIC_PIE, "static-pie"},
+	{TESTBIN_HELLOWORLD_INTEL32_STATIC, "static"},
+	{TESTBIN_HELLOWORLD_INTEL64_STATIC, "static"},
 }
 
 func TestElfLinkingType(t *testing.T) {
@@ -115,9 +125,9 @@ func TestElfLinkingType(t *testing.T) {
 }
 
 var elfMachineTests = []genericCase{
-	{"./test_bins/helloworld-intel32", "EM_386"},
-	{"./test_bins/helloworld-intel64", "EM_X86_64"},
-	{"./test_bins/helloworld-arm64", "EM_AARCH64"},
+	{TESTBIN_HELLOWORLD_INTEL32, "EM_386"},
+	{TESTBIN_HELLOWORLD_INTEL64, "EM_X86_64"},
+	{TESTBIN_HELLOWORLD_ARM64, "EM_AARCH64"},
 }
 
 func TestElfMachine(t *testing.T) {
@@ -135,13 +145,13 @@ func TestElfMachine(t *testing.T) {
 }
 
 var elfInterpreterPathTests = []genericCase{
-	{"./test_bins/helloworld-intel32", "/lib/ld-linux.so.2"},
-	{"./test_bins/helloworld-intel64", "/lib64/ld-linux-x86-64.so.2"},
-	{"./test_bins/helloworld-intel32-static", ""},
-	{"./test_bins/helloworld-intel64-static", ""},
-	{"./test_bins/helloworld-intel32-static-pie", ""},
-	{"./test_bins/helloworld-intel64-static-pie", ""},
-	{"./test_bins/helloworld-arm64", ""},
+	{TESTBIN_HELLOWORLD_INTEL32, "/lib/ld-linux.so.2"},
+	{TESTBIN_HELLOWORLD_INTEL64, "/lib64/ld-linux-x86-64.so.2"},
+	{TESTBIN_HELLOWORLD_INTEL32_STATIC, ""},
+	{TESTBIN_HELLOWORLD_INTEL64_STATIC, ""},
+	{TESTBIN_HELLOWORLD_INTEL32_STATIC_PIE, ""},
+	{TESTBIN_HELLOWORLD_INTEL64_STATIC_PIE, ""},
+	{TESTBIN_HELLOWORLD_ARM64, ""},
 }
 
 func TestElfInterpreterPath(t *testing.T) {
@@ -160,13 +170,13 @@ func TestElfInterpreterPath(t *testing.T) {
 }
 
 var elfEhdrSizeTests = []genericCase{
-	{"./test_bins/helloworld-intel32", "52"},
-	{"./test_bins/helloworld-intel64", "64"},
-	{"./test_bins/helloworld-intel32-static", "52"},
-	{"./test_bins/helloworld-intel64-static", "64"},
-	{"./test_bins/helloworld-intel32-static-pie", "52"},
-	{"./test_bins/helloworld-intel64-static-pie", "64"},
-	{"./test_bins/helloworld-arm64", "64"},
+	{TESTBIN_HELLOWORLD_INTEL32, "52"},
+	{TESTBIN_HELLOWORLD_INTEL64, "64"},
+	{TESTBIN_HELLOWORLD_INTEL32_STATIC, "52"},
+	{TESTBIN_HELLOWORLD_INTEL64_STATIC, "64"},
+	{TESTBIN_HELLOWORLD_INTEL32_STATIC_PIE, "52"},
+	{TESTBIN_HELLOWORLD_INTEL64_STATIC_PIE, "64"},
+	{TESTBIN_HELLOWORLD_ARM64, "64"},
 }
 
 func TestElfEhdrSize(t *testing.T) {
@@ -184,13 +194,13 @@ func TestElfEhdrSize(t *testing.T) {
 }
 
 var elfPhdrTableSizeTests = []genericCase{
-	{"./test_bins/helloworld-intel32", "384"},
-	{"./test_bins/helloworld-intel64", "728"},
-	{"./test_bins/helloworld-intel32-static", "288"},
-	{"./test_bins/helloworld-intel64-static", "560"},
-	{"./test_bins/helloworld-intel32-static-pie", "352"},
-	{"./test_bins/helloworld-intel64-static-pie", "672"},
-	{"./test_bins/helloworld-arm64", "392"},
+	{TESTBIN_HELLOWORLD_INTEL32, "384"},
+	{TESTBIN_HELLOWORLD_INTEL64, "728"},
+	{TESTBIN_HELLOWORLD_INTEL32_STATIC, "288"},
+	{TESTBIN_HELLOWORLD_INTEL64_STATIC, "560"},
+	{TESTBIN_HELLOWORLD_INTEL32_STATIC_PIE, "352"},
+	{TESTBIN_HELLOWORLD_INTEL64_STATIC_PIE, "672"},
+	{TESTBIN_HELLOWORLD_ARM64, "392"},
 }
 
 func TestElfPhdrTableSize(t *testing.T) {
@@ -213,13 +223,13 @@ libelfmaster officially doesn't support ARM so the last test will fail.
 We want to support ARM ultimately. TODO fix this issue for ARM.
 */
 var elfDataFileszTests = []genericCase{
-	{"./test_bins/helloworld-intel32", "0x128"},
-	{"./test_bins/helloworld-intel64", "0x248"},
-	{"./test_bins/helloworld-intel32-static", "0x360c"},
-	{"./test_bins/helloworld-intel64-static", "0x5ad8"},
-	{"./test_bins/helloworld-intel32-static-pie", "0x36ec"},
-	{"./test_bins/helloworld-intel64-static-pie", "0x5c78"},
-	//	genericCase{"./test_bins/helloworld-arm64", "0x17ea0"},
+	{TESTBIN_HELLOWORLD_INTEL32, "0x128"},
+	{TESTBIN_HELLOWORLD_INTEL64, "0x248"},
+	{TESTBIN_HELLOWORLD_INTEL32_STATIC, "0x360c"},
+	{TESTBIN_HELLOWORLD_INTEL64_STATIC, "0x5ad8"},
+	{TESTBIN_HELLOWORLD_INTEL32_STATIC_PIE, "0x36ec"},
+	{TESTBIN_HELLOWORLD_INTEL64_STATIC_PIE, "0x5c78"},
+	//	genericCase{TESTBIN_HELLOWORLD_ARM64, "0x17ea0"},
 }
 
 func TestElfDataFilesz(t *testing.T) {
@@ -238,13 +248,13 @@ func TestElfDataFilesz(t *testing.T) {
 }
 
 var elfEntryPointTests = []genericCase{
-	{"./test_bins/helloworld-intel32", "0x1060"},
-	{"./test_bins/helloworld-intel64", "0x1040"},
-	{"./test_bins/helloworld-intel32-static", "0x8049510"},
-	{"./test_bins/helloworld-intel64-static", "0x4014e0"},
-	{"./test_bins/helloworld-intel32-static-pie", "0x3510"},
-	{"./test_bins/helloworld-intel64-static-pie", "0x95a0"},
-	{"./test_bins/helloworld-arm64", "0x6d100"},
+	{TESTBIN_HELLOWORLD_INTEL32, "0x1060"},
+	{TESTBIN_HELLOWORLD_INTEL64, "0x1040"},
+	{TESTBIN_HELLOWORLD_INTEL32_STATIC, "0x8049510"},
+	{TESTBIN_HELLOWORLD_INTEL64_STATIC, "0x4014e0"},
+	{TESTBIN_HELLOWORLD_INTEL32_STATIC_PIE, "0x3510"},
+	{TESTBIN_HELLOWORLD_INTEL64_STATIC_PIE, "0x95a0"},
+	{TESTBIN_HELLOWORLD_ARM64, "0x6d100"},
 }
 
 func TestElfEntryPoint(t *testing.T) {
@@ -263,13 +273,13 @@ func TestElfEntryPoint(t *testing.T) {
 }
 
 var elfTypeTests = []genericCase{
-	{"./test_bins/helloworld-intel32", "ET_DYN"},
-	{"./test_bins/helloworld-intel64", "ET_DYN"},
-	{"./test_bins/helloworld-intel32-static", "ET_EXEC"},
-	{"./test_bins/helloworld-intel64-static", "ET_EXEC"},
-	{"./test_bins/helloworld-intel32-static-pie", "ET_DYN"},
-	{"./test_bins/helloworld-intel64-static-pie", "ET_DYN"},
-	{"./test_bins/helloworld-arm64", "ET_EXEC"},
+	{TESTBIN_HELLOWORLD_INTEL32, "ET_DYN"},
+	{TESTBIN_HELLOWORLD_INTEL64, "ET_DYN"},
+	{TESTBIN_HELLOWORLD_INTEL32_STATIC, "ET_EXEC"},
+	{TESTBIN_HELLOWORLD_INTEL64_STATIC, "ET_EXEC"},
+	{TESTBIN_HELLOWORLD_INTEL32_STATIC_PIE, "ET_DYN"},
+	{TESTBIN_HELLOWORLD_INTEL64_STATIC_PIE, "ET_DYN"},
+	{TESTBIN_HELLOWORLD_ARM64, "ET_EXEC"},
 }
 
 func TestElfType(t *testing.T) {
@@ -288,13 +298,13 @@ func TestElfType(t *testing.T) {
 }
 
 var elfSizeTests = []genericCase{
-	{"./test_bins/helloworld-intel32", "0x4bf4"},
-	{"./test_bins/helloworld-intel64", "0x5050"},
-	{"./test_bins/helloworld-intel32-static", "0xb9abc"},
-	{"./test_bins/helloworld-intel64-static", "0xbef38"},
-	{"./test_bins/helloworld-intel32-static-pie", "0xbfa7c"},
-	{"./test_bins/helloworld-intel64-static-pie", "0xc9b20"},
-	{"./test_bins/helloworld-arm64", "0x1bcc53"},
+	{TESTBIN_HELLOWORLD_INTEL32, "0x4bf4"},
+	{TESTBIN_HELLOWORLD_INTEL64, "0x5050"},
+	{TESTBIN_HELLOWORLD_INTEL32_STATIC, "0xb9abc"},
+	{TESTBIN_HELLOWORLD_INTEL64_STATIC, "0xbef38"},
+	{TESTBIN_HELLOWORLD_INTEL32_STATIC_PIE, "0xbfa7c"},
+	{TESTBIN_HELLOWORLD_INTEL64_STATIC_PIE, "0xc9b20"},
+	{TESTBIN_HELLOWORLD_ARM64, "0x1bcc53"},
 }
 
 func TestElfSize(t *testing.T) {
@@ -319,11 +329,11 @@ type elfOffsetPointerSliceCases struct {
 }
 
 var elfOffsetPointerSliceTests = []elfOffsetPointerSliceCases{
-	{"./test_bins/helloworld-intel32", 0x0, []byte{0x7f, 0x45, 0x4c, 0x46}},
-	{"./test_bins/helloworld-intel64", 0x5030, []byte{0x76, 0x01, 0x00, 0x00}},
-	{"./test_bins/helloworld-intel32-static", 0x0b9a80, []byte{0x48, 0x71}},
-	{"./test_bins/helloworld-intel64-static", 0x0bee50, []byte{0xb4, 0xac}},
-	{"./test_bins/helloworld-arm64", 0x001bcc30, []byte{0x2e, 0x73, 0x74, 0x72}},
+	{TESTBIN_HELLOWORLD_INTEL32, 0x0, []byte{0x7f, 0x45, 0x4c, 0x46}},
+	{TESTBIN_HELLOWORLD_INTEL64, 0x5030, []byte{0x76, 0x01, 0x00, 0x00}},
+	{TESTBIN_HELLOWORLD_INTEL32_STATIC, 0x0b9a80, []byte{0x48, 0x71}},
+	{TESTBIN_HELLOWORLD_INTEL64_STATIC, 0x0bee50, []byte{0xb4, 0xac}},
+	{TESTBIN_HELLOWORLD_ARM64, 0x001bcc30, []byte{0x2e, 0x73, 0x74, 0x72}},
 }
 
 func TestElfOffsetPointerSlice(t *testing.T) {
@@ -348,11 +358,11 @@ func TestElfOffsetPointerSlice(t *testing.T) {
 }
 
 var ElfOffsetPointerTests = []string{
-	"./test_bins/helloworld-intel32",
-	"./test_bins/helloworld-intel64",
-	"./test_bins/helloworld-intel32-static",
-	"./test_bins/helloworld-intel64-static",
-	"./test_bins/helloworld-arm64",
+	TESTBIN_HELLOWORLD_INTEL32,
+	TESTBIN_HELLOWORLD_INTEL64,
+	TESTBIN_HELLOWORLD_INTEL32_STATIC,
+	TESTBIN_HELLOWORLD_INTEL64_STATIC,
+	TESTBIN_HELLOWORLD_ARM64,
 }
 
 func TestElfOffsetPointer(t *testing.T) {
