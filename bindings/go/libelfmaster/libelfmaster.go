@@ -244,14 +244,7 @@ func (o *ElfObj) ElfSymbolByName(name string, symbol *ElfSymbol) (ret bool) {
 		ret = false
 	}
 
-	symbol.Name = C.GoString(localSymbol.name)
-	symbol.Value = uint64(localSymbol.value)
-	symbol.Size = uint64(localSymbol.size)
-	symbol.ShNdx = uint16(localSymbol.shndx)
-	symbol.Bind = uint8(localSymbol.bind)
-	symbol.Type = uint8(localSymbol._type)
-	symbol.Visibility = uint8(localSymbol.visibility)
-
+	convertElfSymbol(&localSymbol, symbol)
 	return
 }
 
