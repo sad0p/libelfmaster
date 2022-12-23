@@ -445,3 +445,24 @@ func TestElfDynSymTabCount(t *testing.T) {
 		}
 	}
 }
+
+var elfSymbolByNameTests = map[string]ElfSymbol{
+	TESTBIN_HELLOWORLD_INTEL64: {"_init", 0x1000, 0, 12, uint8(elf.STB_GLOBAL), uint8(elf.STT_FUNC), uint8(elf.STV_HIDDEN)},
+	TESTBIN_HELLOWORLD_INTEL32: {"main", 0x118d, 60, 14, uint8(elf.STB_GLOBAL), uint8(elf.STT_FUNC), uint8(elf.STV_DEFAULT)},
+	TESTBIN_HELLOWORLD_ARM64:   {"path..inittask", 0x1219e0, 48, 9, uint8(elf.STB_GLOBAL), uint8(elf.STT_OBJECT), uint8(elf.STV_DEFAULT)},
+}
+
+func TestElfSymbolByName(t *testing.T) {
+	for path, wantSymbol := range elfSymbolByNameTests {
+		var gotSymbol ElfSymbol
+		var obj ElfObj
+
+		if err := obj.ElfOpenObject(path, ELF_LOAD_F_FORENSICS); err != nil {
+			t.Errorf("ElfOpenObject() failed while testing ElfSymbolByNameTests()")
+		}
+		obj.ElfSymbolByName(wantSymbol.Name, &gotSymbol)
+		if wantSymbol != gotSymbol {
+			t.Errorf("TestElfSymbolByName(): got %+v wanted %+v", gotSymbol, wantSymbol)
+		}
+	}
+}

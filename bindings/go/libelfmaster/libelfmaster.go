@@ -48,12 +48,26 @@ int elf_dynsym_count_w(elfobj_t *obj, uint64_t *count)
 {
 	return (int)elf_dynsym_count(obj, count);
 }
+
+int elf_symbol_by_name_w(elfobj_t *obj, const char *name, struct elf_symbol *symbol) {
+	return (int)elf_symbol_by_name(obj, name, symbol);
+}
 */
 import "C"
 
 type ElfObj struct {
 	obj      C.elfobj_t
 	errorMsg C.elf_error_t
+}
+
+type ElfSymbol struct {
+	Name       string
+	Value      uint64
+	Size       uint64
+	ShNdx      uint16
+	Bind       uint8
+	Type       uint8
+	Visibility uint8
 }
 
 const (
@@ -196,5 +210,29 @@ func (o *ElfObj) ElfDynSymTabCount(count *uint64) (ret bool) {
 		ret = false
 	}
 	*count = uint64(localCount)
+	return
+}
+
+func (o *ElfObj) ElfSymbolByName(name string, symbol *ElfSymbol) (ret bool) {
+	var localSymbol C.struct_elf_symbol
+	n := C.CString(name)
+
+	defer C.free(unsafe.Pointer(n))
+
+	switch localRet := int(C.elf_symbol_by_name_w(&o.obj, n, &localSymbol)); localRet {
+	case 1:
+		ret = true
+	default:
+		ret = false
+	}
+
+	symbol.Name = C.GoString(localSymbol.name)
+	symbol.Value = uint64(localSymbol.value)
+	symbol.Size = uint64(localSymbol.size)
+	symbol.ShNdx = uint16(localSymbol.shndx)
+	symbol.Bind = uint8(localSymbol.bind)
+	symbol.Type = uint8(localSymbol._type)
+	symbol.Visibility = uint8(localSymbol.visibility)
+
 	return
 }
