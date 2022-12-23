@@ -17,6 +17,10 @@ const (
 	TESTBIN_HELLOWORLD_INTEL32_STATIC     = "./test_bins/helloworld-intel32-static"
 	TESTBIN_HELLOWORLD_INTEL64_STATIC_PIE = "./test_bins/helloworld-intel64-static-pie"
 	TESTBIN_HELLOWORLD_INTEL32_STATIC_PIE = "./test_bins/helloworld-intel32-static-pie"
+	TESTBIN_HELLOWORLD_INTEL64_NO_SYMTAB  = "./test_bins/helloworld-intel64-no-symtab"
+	TESTBIN_HELLOWORLD_INTEL32_NO_SYMTAB  = "./test_bins/helloworld-intel32-no-symtab"
+	TESTBIN_HELLOWORLD_INTEL64_NO_DYNSYM  = "./test_bins/helloworld-intel64-no-dynsym"
+	TESTBIN_HELLOWORLD_INTEL32_NO_DYNSYM  = "./test_bins/helloworld-intel32-no-dynsym"
 	TESTBIN_HELLOWORLD_ARM64              = "./test_bins/helloworld-arm64"
 )
 
@@ -378,6 +382,66 @@ func TestElfOffsetPointer(t *testing.T) {
 		if !hasMagic {
 			s := fmt.Sprintf("TestElfOffsetPointer(): no ELF_MAGIC in %s", testBinPath)
 			t.Errorf(s)
+		}
+	}
+}
+
+type elfTabCountCases struct {
+	path      string
+	wantCount uint64
+	wantRet   bool
+}
+
+var elfSymTabCountTests = []elfTabCountCases{
+	{TESTBIN_HELLOWORLD_INTEL64, 37, true},
+	{TESTBIN_HELLOWORLD_INTEL64_NO_SYMTAB, 0, false},
+	{TESTBIN_HELLOWORLD_INTEL32, 41, true},
+	{TESTBIN_HELLOWORLD_INTEL32_NO_SYMTAB, 0, false},
+}
+
+func TestElfSymTabCount(t *testing.T) {
+	for _, test := range elfSymTabCountTests {
+		var obj ElfObj
+		if err := obj.ElfOpenObject(test.path, ELF_LOAD_F_FORENSICS); err != nil {
+			t.Errorf("ElfOpenObject() failed while testing ElfSymtabCount()")
+		}
+
+		var gotCount uint64
+		if gotRet := obj.ElfSymTabCount(&gotCount); gotRet != test.wantRet {
+			t.Errorf("TestElfSymtabCount(): returned %v and wanted %v", gotRet, test.wantRet)
+
+		}
+
+		if gotCount != test.wantCount && !test.wantRet {
+			t.Errorf("TestElfSymtabCount(): count %d and wanted %d for file %s", gotCount, test.wantCount,
+				test.path)
+		}
+	}
+}
+
+var elfDynSymTabCountTests = []elfTabCountCases{
+	{TESTBIN_HELLOWORLD_INTEL64, 7, true},
+	{TESTBIN_HELLOWORLD_INTEL64_NO_DYNSYM, 0, false},
+	{TESTBIN_HELLOWORLD_INTEL32, 8, true},
+	{TESTBIN_HELLOWORLD_INTEL32_NO_DYNSYM, 0, false},
+}
+
+func TestElfDynSymTabCount(t *testing.T) {
+	for _, test := range elfDynSymTabCountTests {
+		var obj ElfObj
+		if err := obj.ElfOpenObject(test.path, ELF_LOAD_F_FORENSICS); err != nil {
+			t.Errorf("ElfOpenObject() failed while testing ElfDynSymCount()")
+		}
+
+		var gotCount uint64
+		if gotRet := obj.ElfDynSymTabCount(&gotCount); gotRet != test.wantRet {
+			t.Errorf("TestElfDynSymCount(): returned %v and wanted %v", gotRet, test.wantRet)
+
+		}
+
+		if gotCount != test.wantCount && !test.wantRet {
+			t.Errorf("TestElfDynSymCount(): count %d and wanted %d for file %s", gotCount, test.wantCount,
+				test.path)
 		}
 	}
 }

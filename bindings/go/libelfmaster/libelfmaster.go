@@ -2,8 +2,8 @@ package libelfmaster
 
 import (
 	"errors"
-	"unsafe"
 	"fmt"
+	"unsafe"
 )
 
 /*
@@ -37,6 +37,16 @@ int elf_class_w(elfobj_t *obj)
 int elf_linking_type_w(elfobj_t *obj)
 {
 	return (int)elf_linking_type(obj);
+}
+
+int elf_symtab_count_w(elfobj_t *obj, uint64_t *count)
+{
+	return (int)elf_symtab_count(obj, count);
+}
+
+int elf_dynsym_count_w(elfobj_t *obj, uint64_t *count)
+{
+	return (int)elf_dynsym_count(obj, count);
 }
 */
 import "C"
@@ -155,12 +165,36 @@ func (o *ElfObj) ElfOffsetPointerSlice(off uint64, length uint64) ([]byte, error
 	if m := off + length; o.ElfSize() < m {
 		s := fmt.Sprintf("ElfSize() < m => %d < %d", o.ElfSize(), m)
 		return nil, errors.New(s)
-	}else {
-		p := (* byte)(unsafe.Pointer(C.elf_offset_pointer(&o.obj, C.uint64_t(off))))
-		return unsafe.Slice(p, length), nil		
+	} else {
+		p := (*byte)(unsafe.Pointer(C.elf_offset_pointer(&o.obj, C.uint64_t(off))))
+		return unsafe.Slice(p, length), nil
 	}
 }
 
 func (o *ElfObj) ElfOffsetPointer(off uint64) unsafe.Pointer {
 	return unsafe.Pointer(C.elf_offset_pointer(&o.obj, C.uint64_t(off)))
+}
+
+func (o *ElfObj) ElfSymTabCount(count *uint64) (ret bool) {
+	var localCount C.uint64_t
+	switch localRet := int(C.elf_symtab_count_w(&o.obj, &localCount)); localRet {
+	case 1:
+		ret = true
+	default:
+		ret = false
+	}
+	*count = uint64(localCount)
+	return
+}
+
+func (o *ElfObj) ElfDynSymTabCount(count *uint64) (ret bool) {
+	var localCount C.uint64_t
+	switch localRet := int(C.elf_dynsym_count_w(&o.obj, &localCount)); localRet {
+	case 1:
+		ret = true
+	default:
+		ret = false
+	}
+	*count = uint64(localCount)
+	return
 }
