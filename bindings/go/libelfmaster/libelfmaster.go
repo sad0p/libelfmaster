@@ -195,27 +195,26 @@ func (o *ElfObj) ElfOffsetPointerSlice(off uint64, length uint64) ([]byte, error
 func (o *ElfObj) ElfOffsetPointer(off uint64) unsafe.Pointer {
 	return unsafe.Pointer(C.elf_offset_pointer(&o.obj, C.uint64_t(off)))
 }
-
-func (o *ElfObj) ElfSymTabCount(count *uint64) (ret bool) {
-	var localCount C.uint64_t
-	switch localRet := int(C.elf_symtab_count_w(&o.obj, &localCount)); localRet {
+func intToBool(i int) (ret bool) {
+	switch i {
 	case 1:
 		ret = true
 	default:
 		ret = false
 	}
+	return
+}
+
+func (o *ElfObj) ElfSymTabCount(count *uint64) (ret bool) {
+	var localCount C.uint64_t
+	ret = intToBool(int(C.elf_symtab_count_w(&o.obj, &localCount)))
 	*count = uint64(localCount)
 	return
 }
 
 func (o *ElfObj) ElfDynSymTabCount(count *uint64) (ret bool) {
 	var localCount C.uint64_t
-	switch localRet := int(C.elf_dynsym_count_w(&o.obj, &localCount)); localRet {
-	case 1:
-		ret = true
-	default:
-		ret = false
-	}
+	ret = intToBool(int(C.elf_dynsym_count_w(&o.obj, &localCount)))
 	*count = uint64(localCount)
 	return
 }
@@ -237,13 +236,7 @@ func (o *ElfObj) ElfSymbolByName(name string, symbol *ElfSymbol) (ret bool) {
 
 	defer C.free(unsafe.Pointer(n))
 
-	switch localRet := int(C.elf_symbol_by_name_w(&o.obj, n, &localSymbol)); localRet {
-	case 1:
-		ret = true
-	default:
-		ret = false
-	}
-
+	intToBool(int(C.elf_symbol_by_name_w(&o.obj, n, &localSymbol)))
 	convertElfSymbol(&localSymbol, symbol)
 	return
 }
@@ -252,13 +245,7 @@ func (o *ElfObj) ElfSymbolByIndex(index uint32, symbol *ElfSymbol, tableType elf
 	var localSymbol C.struct_elf_symbol
 	which := uint32(tableType)
 
-	switch localRet := int(C.elf_symbol_by_index_w(&o.obj, C.uint32_t(index), &localSymbol, C.uint32_t(which))); localRet {
-	case 1:
-		ret = true
-	default:
-		ret = false
-	}
-
+	ret = intToBool(int(C.elf_symbol_by_index_w(&o.obj, C.uint32_t(index), &localSymbol, C.uint32_t(which))))
 	convertElfSymbol(&localSymbol, symbol)
 	return
 }
