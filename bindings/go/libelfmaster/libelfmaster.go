@@ -1,6 +1,7 @@
 package libelfmaster
 
 import (
+	"debug/elf"
 	"errors"
 	"fmt"
 	"unsafe"
@@ -49,8 +50,14 @@ int elf_dynsym_count_w(elfobj_t *obj, uint64_t *count)
 	return (int)elf_dynsym_count(obj, count);
 }
 
-int elf_symbol_by_name_w(elfobj_t *obj, const char *name, struct elf_symbol *symbol) {
+int elf_symbol_by_name_w(elfobj_t *obj, const char *name, struct elf_symbol *symbol)
+{
 	return (int)elf_symbol_by_name(obj, name, symbol);
+}
+
+int elf_symbol_by_index_w(elfobj_t *obj, unsigned int index, struct elf_symbol *symbol, const uint32_t which)
+{
+	return (int)elf_symbol_by_index(obj, index, symbol, (const int)which);
 }
 */
 import "C"
@@ -213,6 +220,17 @@ func (o *ElfObj) ElfDynSymTabCount(count *uint64) (ret bool) {
 	return
 }
 
+func convertElfSymbol(from *C.struct_elf_symbol, to *ElfSymbol) {
+	to.Name = C.GoString(from.name)
+	to.Value = uint64(from.value)
+	to.Size = uint64(from.size)
+	to.ShNdx = uint16(from.shndx)
+	to.Bind = uint8(from.bind)
+	to.Type = uint8(from._type)
+	to.Visibility = uint8(from.visibility)
+	return
+}
+
 func (o *ElfObj) ElfSymbolByName(name string, symbol *ElfSymbol) (ret bool) {
 	var localSymbol C.struct_elf_symbol
 	n := C.CString(name)
@@ -234,5 +252,20 @@ func (o *ElfObj) ElfSymbolByName(name string, symbol *ElfSymbol) (ret bool) {
 	symbol.Type = uint8(localSymbol._type)
 	symbol.Visibility = uint8(localSymbol.visibility)
 
+	return
+}
+
+func (o *ElfObj) ElfSymbolByIndex(index uint32, symbol *ElfSymbol, tableType elf.SectionType) (ret bool) {
+	var localSymbol C.struct_elf_symbol
+	which := uint32(tableType)
+
+	switch localRet := int(C.elf_symbol_by_index_w(&o.obj, C.uint32_t(index), &localSymbol, C.uint32_t(which))); localRet {
+	case 1:
+		ret = true
+	default:
+		ret = false
+	}
+
+	convertElfSymbol(&localSymbol, symbol)
 	return
 }

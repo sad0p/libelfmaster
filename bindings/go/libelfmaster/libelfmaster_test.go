@@ -447,9 +447,10 @@ func TestElfDynSymTabCount(t *testing.T) {
 }
 
 var elfSymbolByNameTests = map[string]ElfSymbol{
-	TESTBIN_HELLOWORLD_INTEL64: {"_init", 0x1000, 0, 12, uint8(elf.STB_GLOBAL), uint8(elf.STT_FUNC), uint8(elf.STV_HIDDEN)},
-	TESTBIN_HELLOWORLD_INTEL32: {"main", 0x118d, 60, 14, uint8(elf.STB_GLOBAL), uint8(elf.STT_FUNC), uint8(elf.STV_DEFAULT)},
-	TESTBIN_HELLOWORLD_ARM64:   {"path..inittask", 0x1219e0, 48, 9, uint8(elf.STB_GLOBAL), uint8(elf.STT_OBJECT), uint8(elf.STV_DEFAULT)},
+	TESTBIN_HELLOWORLD_INTEL64:           {"_init", 0x1000, 0, 12, uint8(elf.STB_GLOBAL), uint8(elf.STT_FUNC), uint8(elf.STV_HIDDEN)},
+	TESTBIN_HELLOWORLD_INTEL32:           {"main", 0x118d, 60, 14, uint8(elf.STB_GLOBAL), uint8(elf.STT_FUNC), uint8(elf.STV_DEFAULT)},
+	TESTBIN_HELLOWORLD_INTEL32_NO_DYNSYM: {"__bss_start", 0x080ee278, 0, 24, uint8(elf.STB_GLOBAL), uint8(elf.STT_NOTYPE), uint8(elf.STV_DEFAULT)},
+	TESTBIN_HELLOWORLD_ARM64:             {"path..inittask", 0x1219e0, 48, 9, uint8(elf.STB_GLOBAL), uint8(elf.STT_OBJECT), uint8(elf.STV_DEFAULT)},
 }
 
 func TestElfSymbolByName(t *testing.T) {
@@ -463,6 +464,30 @@ func TestElfSymbolByName(t *testing.T) {
 		obj.ElfSymbolByName(wantSymbol.Name, &gotSymbol)
 		if wantSymbol != gotSymbol {
 			t.Errorf("TestElfSymbolByName(): got %+v wanted %+v", gotSymbol, wantSymbol)
+		}
+	}
+}
+
+var elfSymbolByIndexTests = map[uint32]map[string]ElfSymbol{
+	36:   {TESTBIN_HELLOWORLD_INTEL64: elfSymbolByNameTests[TESTBIN_HELLOWORLD_INTEL64]},
+	2061: {TESTBIN_HELLOWORLD_ARM64: elfSymbolByNameTests[TESTBIN_HELLOWORLD_ARM64]},
+	1969: {TESTBIN_HELLOWORLD_INTEL32_NO_DYNSYM: elfSymbolByNameTests[TESTBIN_HELLOWORLD_INTEL32_NO_DYNSYM]},
+}
+
+func TestElfSymbolByIndex(t *testing.T) {
+	for wantIndex, pathSymbolMap := range elfSymbolByIndexTests {
+		for path, wantSymbol := range pathSymbolMap {
+			var gotSymbol ElfSymbol
+			var obj ElfObj
+
+			if err := obj.ElfOpenObject(path, ELF_LOAD_F_FORENSICS); err != nil {
+				t.Errorf("ElfOpenObject() failed while testing ElfSymbolByIndexTests()")
+			}
+
+			obj.ElfSymbolByIndex(wantIndex, &gotSymbol, elf.SHT_SYMTAB)
+			if wantSymbol != gotSymbol {
+				t.Errorf("TestElfSymbolByIndex(): got %+v wanted %+v for index %d", gotSymbol, wantSymbol, wantIndex)
+			}
 		}
 	}
 }
