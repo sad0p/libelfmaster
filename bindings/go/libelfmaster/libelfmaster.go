@@ -59,6 +59,11 @@ int elf_symbol_by_index_w(elfobj_t *obj, unsigned int index, struct elf_symbol *
 {
 	return (int)elf_symbol_by_index(obj, index, symbol, (const int)which);
 }
+
+int elf_plt_by_name_w(elfobj_t *obj, const char *name, struct elf_plt *entry)
+{
+	return (int)elf_plt_by_name(obj, name, entry);
+}
 */
 import "C"
 
@@ -75,6 +80,11 @@ type ElfSymbol struct {
 	Bind       uint8
 	Type       uint8
 	Visibility uint8
+}
+
+type ElfPlt struct {
+	SymName string
+	Addr    uint64
 }
 
 const (
@@ -247,5 +257,17 @@ func (o *ElfObj) ElfSymbolByIndex(index uint32, symbol *ElfSymbol, tableType elf
 
 	ret = intToBool(int(C.elf_symbol_by_index_w(&o.obj, C.uint32_t(index), &localSymbol, C.uint32_t(which))))
 	convertElfSymbol(&localSymbol, symbol)
+	return
+}
+
+func (o *ElfObj) ElfPltByName(name string, pltEntry *ElfPlt) (ret bool) {
+	var localPlt C.struct_elf_plt
+	n := C.CString(name)
+
+	defer C.free(unsafe.Pointer(n))
+
+	ret = intToBool(int(C.elf_plt_by_name_w(&o.obj, n, &localPlt)))
+	pltEntry.SymName = C.GoString(localPlt.symname)
+	pltEntry.Addr = uint64(localPlt.addr)
 	return
 }

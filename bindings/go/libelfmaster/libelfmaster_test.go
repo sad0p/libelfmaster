@@ -482,12 +482,34 @@ func TestElfSymbolByIndex(t *testing.T) {
 
 			if err := obj.ElfOpenObject(path, ELF_LOAD_F_FORENSICS); err != nil {
 				t.Errorf("ElfOpenObject() failed while testing ElfSymbolByIndexTests()")
+				continue
 			}
 
 			obj.ElfSymbolByIndex(wantIndex, &gotSymbol, elf.SHT_SYMTAB)
 			if wantSymbol != gotSymbol {
 				t.Errorf("TestElfSymbolByIndex(): got %+v wanted %+v for index %d", gotSymbol, wantSymbol, wantIndex)
 			}
+			obj.ElfCloseObject()
+		}
+	}
+}
+
+var elfPltEntryByNameTests = map[string]ElfPlt{
+	TESTBIN_HELLOWORLD_INTEL64: {"printf", 0x1030},
+	TESTBIN_HELLOWORLD_INTEL32: {"printf", 0x1050},
+}
+
+func TestElfPltEntryByName(t *testing.T) {
+	for path, wantPltEntry := range elfPltEntryByNameTests {
+		var gotPltEntry ElfPlt
+		var obj ElfObj
+
+		if err := obj.ElfOpenObject(path, ELF_LOAD_F_FORENSICS); err != nil {
+			t.Errorf("ElfOpenObject() failed while testing ElfPltEntryByName()")
+		}
+		obj.ElfPltByName(wantPltEntry.SymName, &gotPltEntry)
+		if wantPltEntry != gotPltEntry {
+			t.Errorf("TestElfPltEntryByName(): got %+v wanted %+v in %s ", gotPltEntry, wantPltEntry, path)
 		}
 	}
 }
