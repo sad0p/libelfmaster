@@ -481,13 +481,17 @@ func TestElfSymbolByIndex(t *testing.T) {
 			var obj ElfObj
 
 			if err := obj.ElfOpenObject(path, ELF_LOAD_F_FORENSICS); err != nil {
-				t.Errorf("ElfOpenObject() failed while testing ElfSymbolByIndexTests()")
+				t.Errorf("ElfOpenObject() failed while testing ElfSymbolByIndex()")
 				continue
 			}
 
-			obj.ElfSymbolByIndex(wantIndex, &gotSymbol, elf.SHT_SYMTAB)
-			if wantSymbol != gotSymbol {
-				t.Errorf("TestElfSymbolByIndex(): got %+v wanted %+v for index %d", gotSymbol, wantSymbol, wantIndex)
+			switch b := obj.ElfSymbolByIndex(wantIndex, &gotSymbol, elf.SHT_SYMTAB); b {
+			case true:
+				if wantSymbol != gotSymbol {
+					t.Errorf("TestElfSymbolByIndex(): got %+v wanted %+v for index %d in binary %s", gotSymbol, wantSymbol, wantIndex, path)
+				}
+			default:
+				t.Errorf("TestElfSymbolByIndex(): Returned false, for index num %d in binary %s", wantIndex, path)
 			}
 			obj.ElfCloseObject()
 		}
