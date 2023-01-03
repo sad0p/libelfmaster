@@ -506,11 +506,18 @@ func TestElfPltEntryByName(t *testing.T) {
 
 		if err := obj.ElfOpenObject(path, ELF_LOAD_F_FORENSICS); err != nil {
 			t.Errorf("ElfOpenObject() failed while testing ElfPltEntryByName()")
+			continue
 		}
-		obj.ElfPltByName(wantPltEntry.SymName, &gotPltEntry)
-		if wantPltEntry != gotPltEntry {
-			t.Errorf("TestElfPltEntryByName(): got %+v wanted %+v in %s ", gotPltEntry, wantPltEntry, path)
+
+		switch b := obj.ElfPltByName(wantPltEntry.SymName, &gotPltEntry); b {
+		case true:
+			if wantPltEntry != gotPltEntry {
+				t.Errorf("TestElfPltEntryByName(): got %+v wanted %+v in %s ", gotPltEntry, wantPltEntry, path)
+			}
+		default:
+			t.Errorf("TestElfPltEntryByName(): Returned %v did not find plt entry for symbol %s in binary %s", b, wantPltEntry.SymName, path)
 		}
+		obj.ElfCloseObject()
 	}
 }
 
