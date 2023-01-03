@@ -460,11 +460,17 @@ func TestElfSymbolByName(t *testing.T) {
 
 		if err := obj.ElfOpenObject(path, ELF_LOAD_F_FORENSICS); err != nil {
 			t.Errorf("ElfOpenObject() failed while testing ElfSymbolByNameTests()")
+			continue
 		}
-		obj.ElfSymbolByName(wantSymbol.Name, &gotSymbol)
-		if wantSymbol != gotSymbol {
-			t.Errorf("TestElfSymbolByName(): got %+v wanted %+v", gotSymbol, wantSymbol)
+		switch b := obj.ElfSymbolByName(wantSymbol.Name, &gotSymbol); b {
+		case true:
+			if wantSymbol != gotSymbol {
+				t.Errorf("TestElfSymbolByName(): got %+v wanted %+v", gotSymbol, wantSymbol)
+			}
+		default:
+			t.Errorf("TestElfSymbolByName(): Returned false, for symbol %s in binary %s", wantSymbol.Name, path)
 		}
+		obj.ElfCloseObject()
 	}
 }
 
