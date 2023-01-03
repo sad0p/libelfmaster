@@ -545,15 +545,14 @@ func TestElfSectionByName(t *testing.T) {
 
 		for sName, wantSection := range sections {
 			var gotSection ElfSection
-			switch ok := obj.ElfSectionByName(sName, &gotSection); ok {
+			switch b := obj.ElfSectionByName(sName, &gotSection); b {
 			case true:
 				if gotSection != wantSection {
 					t.Errorf("TestElfSectionByName(): got %+v and wanted %+v for %s binary.", gotSection, wantSection, path)
 					continue
 				}
 			default:
-				t.Errorf("TestElfSectionByName(): Could not find section %+v in %s binary", wantSection, path)
-				continue
+				t.Errorf("TestElfSectionByName(): Returned %v, could not find section %+v in %s binary", b, wantSection, path)
 			}
 		}
 		obj.ElfCloseObject()
