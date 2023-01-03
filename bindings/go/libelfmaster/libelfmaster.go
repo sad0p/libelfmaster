@@ -313,7 +313,6 @@ func convertElfSection(from *C.struct_elf_section, to *ElfSection) {
 	to.Offset = uint64(from.offset)
 	to.Address = uint64(from.address)
 	to.Size = uint64(from.size)
-	return
 }
 
 func (o *ElfObj) ElfSectionByName(name string, section *ElfSection) (ret bool) {
