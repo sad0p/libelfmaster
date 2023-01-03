@@ -261,7 +261,6 @@ func convertElfSymbol(from *C.struct_elf_symbol, to *ElfSymbol) {
 	to.Bind = uint8(from.bind)
 	to.Type = uint8(from._type)
 	to.Visibility = uint8(from.visibility)
-	return
 }
 
 func (o *ElfObj) ElfSymbolByName(name string, symbol *ElfSymbol) (ret bool) {
