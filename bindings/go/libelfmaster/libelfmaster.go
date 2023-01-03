@@ -275,7 +275,9 @@ func (o *ElfObj) ElfSymbolByIndex(index uint32, symbol *ElfSymbol, tableType elf
 	which := uint32(tableType)
 
 	ret = intToBool(int(C.elf_symbol_by_index_w(&o.obj, C.uint32_t(index), &localSymbol, C.uint32_t(which))))
-	convertElfSymbol(&localSymbol, symbol)
+	if ret {
+		convertElfSymbol(&localSymbol, symbol)
+	}
 	return
 }
 
