@@ -64,6 +64,11 @@ int elf_plt_by_name_w(elfobj_t *obj, const char *name, struct elf_plt *entry)
 {
 	return (int)elf_plt_by_name(obj, name, entry);
 }
+
+int elf_section_by_name_w(elfobj_t *obj, const char *name, struct elf_section *entry)
+{
+	return (int)elf_section_by_name(obj, name, entry);
+}
 */
 import "C"
 
@@ -85,6 +90,19 @@ type ElfSymbol struct {
 type ElfPlt struct {
 	SymName string
 	Addr    uint64
+}
+
+type ElfSection struct {
+	Name    string
+	Type    uint32
+	Link    uint32
+	Info    uint32
+	Flags   uint64
+	Align   uint64
+	Entsize uint64
+	Offset  uint64
+	Address uint64
+	Size    uint64
 }
 
 const (
@@ -205,6 +223,7 @@ func (o *ElfObj) ElfOffsetPointerSlice(off uint64, length uint64) ([]byte, error
 func (o *ElfObj) ElfOffsetPointer(off uint64) unsafe.Pointer {
 	return unsafe.Pointer(C.elf_offset_pointer(&o.obj, C.uint64_t(off)))
 }
+
 func intToBool(i int) (ret bool) {
 	switch i {
 	case 1:
@@ -269,5 +288,32 @@ func (o *ElfObj) ElfPltByName(name string, pltEntry *ElfPlt) (ret bool) {
 	ret = intToBool(int(C.elf_plt_by_name_w(&o.obj, n, &localPlt)))
 	pltEntry.SymName = C.GoString(localPlt.symname)
 	pltEntry.Addr = uint64(localPlt.addr)
+	return
+}
+
+func convertElfSection(from *C.struct_elf_section, to *ElfSection) {
+	to.Name = C.GoString(from.name)
+	to.Type = uint32(from._type)
+	to.Link = uint32(from.link)
+	to.Info = uint32(from.info)
+	to.Flags = uint64(from.flags)
+	to.Align = uint64(from.align)
+	to.Entsize = uint64(from.entsize)
+	to.Offset = uint64(from.offset)
+	to.Address = uint64(from.address)
+	to.Size = uint64(from.size)
+	return
+}
+
+func (o *ElfObj) ElfSectionByName(name string, section *ElfSection) (ret bool) {
+	var localSection C.struct_elf_section
+	n := C.CString(name)
+
+	defer C.free(unsafe.Pointer(n))
+
+	ret = intToBool(int(C.elf_section_by_name_w(&o.obj, n, &localSection)))
+	if ret {
+		convertElfSection(&localSection, section)
+	}
 	return
 }

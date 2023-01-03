@@ -513,3 +513,43 @@ func TestElfPltEntryByName(t *testing.T) {
 		}
 	}
 }
+
+var elfSectionByNameTests = map[string]map[string]ElfSection{
+	TESTBIN_HELLOWORLD_INTEL64: {
+		".text":     {".text", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_EXECINSTR), 0x10, 0, 0x1040, 0x1040, 0x118},
+		".plt":      {".plt", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_EXECINSTR), 0x10, 0x10, 0x1020, 0x1020, 0x20},
+		".rela.dyn": {".rela.dyn", uint32(elf.SHT_RELA), 6, 0, uint64(elf.SHF_ALLOC), 8, 0x18, 0x558, 0x558, 0xc0},
+	},
+
+	TESTBIN_HELLOWORLD_INTEL32: {
+		".text":    {".text", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_EXECINSTR), 0x10, 0, 0x1060, 0x1060, 0x16d},
+		".plt":     {".plt", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_EXECINSTR), 0x10, 4, 0x1030, 0x1030, 0x30},
+		".rel.dyn": {".rel.dyn", uint32(elf.SHT_REL), 6, 0, uint64(elf.SHF_ALLOC), 4, 8, 0x3d8, 0x3d8, 0x40},
+	},
+}
+
+func TestElfSectionByName(t *testing.T) {
+	for path, sections := range elfSectionByNameTests {
+		var obj ElfObj
+		if err := obj.ElfOpenObject(path, ELF_LOAD_F_FORENSICS); err != nil {
+			t.Errorf("ElfOpenObject() failed while testing ElfSectionByName()")
+			continue
+		}
+
+		for sName, wantSection := range sections {
+			var gotSection ElfSection
+			switch ok := obj.ElfSectionByName(sName, &gotSection); ok {
+			case true:
+				if gotSection != wantSection {
+					t.Errorf("TestElfSectionByName(): got %+v and wanted %+v for %s binary.", gotSection, wantSection, path)
+					continue
+				}
+			default:
+				t.Errorf("TestElfSectionByName(): Could not find section %+v in %s binary", wantSection, path)
+				continue
+			}
+		}
+		obj.ElfCloseObject()
+	}
+	return
+}
