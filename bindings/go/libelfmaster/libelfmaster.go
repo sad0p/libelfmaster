@@ -286,8 +286,10 @@ func (o *ElfObj) ElfPltByName(name string, pltEntry *ElfPlt) (ret bool) {
 	defer C.free(unsafe.Pointer(n))
 
 	ret = intToBool(int(C.elf_plt_by_name_w(&o.obj, n, &localPlt)))
-	pltEntry.SymName = C.GoString(localPlt.symname)
-	pltEntry.Addr = uint64(localPlt.addr)
+	if ret {
+		pltEntry.SymName = C.GoString(localPlt.symname)
+		pltEntry.Addr = uint64(localPlt.addr)
+	}
 	return
 }
 
