@@ -237,7 +237,9 @@ func intToBool(i int) (ret bool) {
 func (o *ElfObj) ElfSymTabCount(count *uint64) (ret bool) {
 	var localCount C.uint64_t
 	ret = intToBool(int(C.elf_symtab_count_w(&o.obj, &localCount)))
-	*count = uint64(localCount)
+	if ret {
+		*count = uint64(localCount)
+	}
 	return
 }
 
