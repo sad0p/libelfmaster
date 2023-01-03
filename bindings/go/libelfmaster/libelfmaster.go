@@ -265,8 +265,10 @@ func (o *ElfObj) ElfSymbolByName(name string, symbol *ElfSymbol) (ret bool) {
 
 	defer C.free(unsafe.Pointer(n))
 
-	intToBool(int(C.elf_symbol_by_name_w(&o.obj, n, &localSymbol)))
-	convertElfSymbol(&localSymbol, symbol)
+	ret = intToBool(int(C.elf_symbol_by_name_w(&o.obj, n, &localSymbol)))
+	if ret {
+		convertElfSymbol(&localSymbol, symbol)
+	}
 	return
 }
 
