@@ -569,3 +569,35 @@ func TestElfSectionByName(t *testing.T) {
 	}
 	return
 }
+
+var elfSectionByIndexTests = map[string]map[uint32]ElfSection{
+	TESTBIN_HELLOWORLD_INTEL64: {14: {".text", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_EXECINSTR), 0x10, 0, 0x1040, 0x1040, 0x118},
+		13: {".plt", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_EXECINSTR), 0x10, 0x10, 0x1020, 0x1020, 0x20},
+		10: {".rela.dyn", uint32(elf.SHT_RELA), 6, 0, uint64(elf.SHF_ALLOC), 8, 0x18, 0x558, 0x558, 0xc0}},
+	TESTBIN_HELLOWORLD_INTEL32: {14: {".text", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_EXECINSTR), 0x10, 0, 0x1060, 0x1060, 0x16d},
+		13: {".plt", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_EXECINSTR), 0x10, 4, 0x1030, 0x1030, 0x30},
+		10: {".rel.dyn", uint32(elf.SHT_REL), 6, 0, uint64(elf.SHF_ALLOC), 4, 8, 0x3d8, 0x3d8, 0x40},
+	},
+}
+
+func TestElfSectionByIndex(t *testing.T) {
+	for path, sections := range elfSectionByIndexTests {
+		var obj ElfObj
+		if err := obj.ElfOpenObject(path, ELF_LOAD_F_FORENSICS); err != nil {
+			t.Errorf("ElfOpenObject() failed while testing ElfSectionByIndex()")
+			continue
+		}
+		for sIndex, wantSection := range sections {
+			var gotSection ElfSection
+			switch b := obj.ElfSectionByIndex(sIndex, &gotSection); b {
+			case true:
+				if gotSection != wantSection {
+					t.Errorf("TestElfSectionByIndex(): got %+v wanted %+v in binary %s", gotSection, wantSection, path)
+				}
+			default:
+				t.Errorf("TestElfSectionByIndex(): Returned false for index %d in binary %s", sIndex, path)
+			}
+		}
+		obj.ElfCloseObject()
+	}
+}

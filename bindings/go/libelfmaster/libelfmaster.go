@@ -69,6 +69,11 @@ int elf_section_by_name_w(elfobj_t *obj, const char *name, struct elf_section *e
 {
 	return (int)elf_section_by_name(obj, name, entry);
 }
+
+int elf_section_by_index_w(elfobj_t *obj, unsigned int index, struct elf_section *entry)
+{
+	return (int)elf_section_by_index(obj, index, entry);
+}
 */
 import "C"
 
@@ -321,6 +326,15 @@ func (o *ElfObj) ElfSectionByName(name string, section *ElfSection) (ret bool) {
 	defer C.free(unsafe.Pointer(n))
 
 	ret = intToBool(int(C.elf_section_by_name_w(&o.obj, n, &localSection)))
+	if ret {
+		convertElfSection(&localSection, section)
+	}
+	return
+}
+
+func (o *ElfObj) ElfSectionByIndex(index uint32, section *ElfSection) (ret bool) {
+	var localSection C.struct_elf_section
+	ret = intToBool(int(C.elf_section_by_index_w(&o.obj, C.uint32_t(index), &localSection)))
 	if ret {
 		convertElfSection(&localSection, section)
 	}
