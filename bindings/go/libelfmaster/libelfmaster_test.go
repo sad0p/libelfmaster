@@ -601,3 +601,31 @@ func TestElfSectionByIndex(t *testing.T) {
 		obj.ElfCloseObject()
 	}
 }
+
+var elfSectionIndexByNameTests = map[string]map[string]uint64{
+	TESTBIN_HELLOWORLD_INTEL64: {".interp": 1, ".note.ABI-tag": 4, ".rela.dyn": 10, ".rela.plt": 11, ".init": 12, ".text": 14},
+	TESTBIN_HELLOWORLD_INTEL32: {".gnu.version": 8, ".rel.plt": 11, ".text": 14, ".comment": 26, ".debug_info": 28, ".debug_str": 31},
+}
+
+func TestElfSectionIndexByName(t *testing.T) {
+	for path, sectionIndex := range elfSectionIndexByNameTests {
+		var obj ElfObj
+		if err := obj.ElfOpenObject(path, ELF_LOAD_F_FORENSICS); err != nil {
+			t.Errorf("ElfOpenObject() failed while testing ElfSectionIndexByName()")
+			continue
+		}
+
+		for sName, wantIndex := range sectionIndex {
+			var gotIndex uint64
+			switch b := obj.ElfSectionIndexByName(sName, &gotIndex); b {
+			case true:
+				if gotIndex != wantIndex {
+					t.Errorf("TestElfSectionIndexByName(): got index %d wanted %d for section %s in binary %s.", gotIndex, wantIndex, sName, path)
+				}
+			default:
+				t.Errorf("TestElfSectionByIndex(): Returned false for index %d in binary %s.", wantIndex, path)
+			}
+		}
+		obj.ElfCloseObject()
+	}
+}
