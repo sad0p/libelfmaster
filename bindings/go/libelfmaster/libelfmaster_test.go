@@ -504,6 +504,33 @@ func TestElfSymbolByIndex(t *testing.T) {
 	}
 }
 
+var elfSymbolByRangeTests = map[string]map[uint64]ElfSymbol{
+	TESTBIN_HELLOWORLD_INTEL64: {0x1040: {"_start", 0x1040, 38, 14, uint8(elf.STB_GLOBAL), uint8(elf.STT_FUNC), uint8(elf.STV_DEFAULT)}},
+}
+
+func TestElfSymbolByRange(t *testing.T) {
+	for path, valuesSymbols := range elfSymbolByRangeTests {
+		var obj ElfObj
+		if err := obj.ElfOpenObject(path, ELF_LOAD_F_FORENSICS); err != nil {
+			t.Errorf("ElfOpenObject() failed while testing ElfSymbolByRange()")
+			continue
+		}
+
+		for addr, wantSymbol := range valuesSymbols {
+			var gotSymbol ElfSymbol
+			switch b := obj.ElfSymbolByRange(addr, &gotSymbol); b {
+			case true:
+				if wantSymbol != gotSymbol {
+					t.Errorf("TestElfSymbolByRange(): got %+v and wanted %+v for addr 0x%x for binary %s", gotSymbol, wantSymbol, addr, path)
+				}
+			default:
+				t.Errorf("TestElfSymbolByRange(): Returned false for addr 0x%x in binary %s", addr, path)
+			}
+		}
+		obj.ElfCloseObject()
+	}
+}
+
 var elfPltEntryByNameTests = map[string]ElfPlt{
 	TESTBIN_HELLOWORLD_INTEL64: {"printf", 0x1030},
 	TESTBIN_HELLOWORLD_INTEL32: {"printf", 0x1050},

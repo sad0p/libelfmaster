@@ -60,6 +60,11 @@ int elf_symbol_by_index_w(elfobj_t *obj, unsigned int index, struct elf_symbol *
 	return (int)elf_symbol_by_index(obj, index, symbol, (const int)which);
 }
 
+int elf_symbol_by_range_w(elfobj_t *obj, uint64_t addr, struct elf_symbol *symbol)
+{
+	return (int)elf_symbol_by_range(obj, addr, symbol);
+}
+
 int elf_plt_by_name_w(elfobj_t *obj, const char *name, struct elf_plt *entry)
 {
 	return (int)elf_plt_by_name(obj, name, entry);
@@ -290,6 +295,21 @@ func (o *ElfObj) ElfSymbolByIndex(index uint32, symbol *ElfSymbol, tableType elf
 	which := uint32(tableType)
 
 	ret = intToBool(int(C.elf_symbol_by_index_w(&o.obj, C.uint32_t(index), &localSymbol, C.uint32_t(which))))
+	if ret {
+		convertElfSymbol(&localSymbol, symbol)
+	}
+	return
+}
+
+func (o *ElfObj) ElfSymbolByRange(addr uint64, symbol *ElfSymbol) (ret bool) {
+	ret = o.ElfSymbolByValue(addr, symbol)
+	return
+}
+
+func (o *ElfObj) ElfSymbolByValue(addr uint64, symbol *ElfSymbol) (ret bool) {
+	var localSymbol C.struct_elf_symbol
+
+	ret = intToBool(int(C.elf_symbol_by_range_w(&o.obj, C.uint64_t(addr), &localSymbol)))
 	if ret {
 		convertElfSymbol(&localSymbol, symbol)
 	}
