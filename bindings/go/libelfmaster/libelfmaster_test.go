@@ -531,6 +531,41 @@ func TestElfSymbolByRange(t *testing.T) {
 	}
 }
 
+var elfSymbolByValueLookupTests = map[string]map[uint64]ElfSymbol{
+	TESTBIN_HELLOWORLD_INTEL64: {0x1040: {"_start", 0x1040, 38, 14, uint8(elf.STB_GLOBAL), uint8(elf.STT_FUNC), uint8(elf.STV_DEFAULT)},
+		0x1139: {"main", 0x1139, 31, 14, uint8(elf.STB_GLOBAL), uint8(elf.STT_FUNC), uint8(elf.STV_DEFAULT)},
+		0x1158: {"_fini", 0x1158, 0, 15, uint8(elf.STB_GLOBAL), uint8(elf.STT_FUNC), uint8(elf.STV_HIDDEN)},
+	},
+
+	TESTBIN_HELLOWORLD_INTEL32: {0x10a0: {"deregister_tm_clones", 0x10a0, 0, 14, uint8(elf.STB_LOCAL), uint8(elf.STT_FUNC), uint8(elf.STV_DEFAULT)},
+		0x1000: {"_init", 0x1000, 0, 12, uint8(elf.STB_GLOBAL), uint8(elf.STT_FUNC), uint8(elf.STV_HIDDEN)},
+		0x4010: {"__TMC_END__", 0x4010, 0, 24, uint8(elf.STB_GLOBAL), uint8(elf.STT_OBJECT), uint8(elf.STV_HIDDEN)},
+	},
+}
+
+func TestElfSymbolByValueLookup(t *testing.T) {
+	for path, valuesSymbols := range elfSymbolByValueLookupTests {
+		var obj ElfObj
+		if err := obj.ElfOpenObject(path, ELF_LOAD_F_FORENSICS); err != nil {
+			t.Errorf("ElfOpenObject() failed while testing ElfSymbolByValueLookup()")
+			continue
+		}
+
+		for addr, wantSymbol := range valuesSymbols {
+			var gotSymbol ElfSymbol
+			switch b := obj.ElfSymbolByValueLookup(addr, &gotSymbol); b {
+			case true:
+				if wantSymbol != gotSymbol {
+					t.Errorf("TestElfSymbolByValueLookup(): got %+v and wanted %+v for addr 0x%x for binary %s", gotSymbol, wantSymbol, addr, path)
+				}
+			default:
+				t.Errorf("TestElfSymbolByValueLookup(): Returned false for addr 0x%x in binary %s", addr, path)
+			}
+		}
+		obj.ElfCloseObject()
+	}
+}
+
 var elfPltEntryByNameTests = map[string]ElfPlt{
 	TESTBIN_HELLOWORLD_INTEL64: {"printf", 0x1030},
 	TESTBIN_HELLOWORLD_INTEL32: {"printf", 0x1050},

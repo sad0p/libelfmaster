@@ -65,6 +65,11 @@ int elf_symbol_by_range_w(elfobj_t *obj, uint64_t addr, struct elf_symbol *symbo
 	return (int)elf_symbol_by_range(obj, addr, symbol);
 }
 
+int elf_symbol_by_value_lookup_w(elfobj_t *obj, uint64_t addr, struct elf_symbol *symbol)
+{
+	return (int)elf_symbol_by_value_lookup(obj, addr, symbol);
+}
+
 int elf_plt_by_name_w(elfobj_t *obj, const char *name, struct elf_plt *entry)
 {
 	return (int)elf_plt_by_name(obj, name, entry);
@@ -310,6 +315,16 @@ func (o *ElfObj) ElfSymbolByValue(addr uint64, symbol *ElfSymbol) (ret bool) {
 	var localSymbol C.struct_elf_symbol
 
 	ret = intToBool(int(C.elf_symbol_by_range_w(&o.obj, C.uint64_t(addr), &localSymbol)))
+	if ret {
+		convertElfSymbol(&localSymbol, symbol)
+	}
+	return
+}
+
+func (o *ElfObj) ElfSymbolByValueLookup(addr uint64, symbol *ElfSymbol) (ret bool) {
+	var localSymbol C.struct_elf_symbol
+
+	ret = intToBool(int(C.elf_symbol_by_value_lookup_w(&o.obj, C.uint64_t(addr), &localSymbol)))
 	if ret {
 		convertElfSymbol(&localSymbol, symbol)
 	}
