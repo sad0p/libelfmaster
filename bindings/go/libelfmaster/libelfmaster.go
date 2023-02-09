@@ -392,3 +392,21 @@ func (o *ElfObj) ElfSectionIndexByName(name string, index *uint64) (ret bool) {
 	}
 	return
 }
+
+/*
+	Instead of elf_section_iterator_init() and elf_section_interator_next(), we just return an array of all sections.
+	This avoids breaking cgo rules around memory allocation between Go Pointers and C pointers.
+*/
+
+func (o *ElfObj) ElfSectionsArray() (sectionsArray []ElfSection) {
+	var sNdx uint32 = 0
+	for {
+		var section ElfSection
+		if ok := o.ElfSectionByIndex(sNdx, &section); !ok {
+			break
+		}
+		sectionsArray = append(sectionsArray, section)
+		sNdx++
+	}
+	return
+}

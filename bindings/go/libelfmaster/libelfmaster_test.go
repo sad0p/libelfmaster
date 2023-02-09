@@ -691,3 +691,154 @@ func TestElfSectionIndexByName(t *testing.T) {
 		obj.ElfCloseObject()
 	}
 }
+
+var elfSectionsArrayTest = map[string][]ElfSection{
+	TESTBIN_HELLOWORLD_INTEL64: {{"", uint32(elf.SHT_NULL), 0, 0, 0, 0, 0, 0, 0, 0},
+		{".interp", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC), 1, 0, 0x318, 0x318, 0x1c},
+		{".note.gnu.property", uint32(elf.SHT_NOTE), 0, 0, uint64(elf.SHF_ALLOC), 8, 0, 0x338, 0x338, 0x40},
+		{".note.gnu.build-id", uint32(elf.SHT_NOTE), 0, 0, uint64(elf.SHF_ALLOC), 4, 0, 0x378, 0x378, 0x24},
+		{".note.ABI-tag", uint32(elf.SHT_NOTE), 0, 0, uint64(elf.SHF_ALLOC), 4, 0, 0x39c, 0x39c, 0x20},
+		{".gnu.hash", uint32(elf.SHT_GNU_HASH), 6, 0, uint64(elf.SHF_ALLOC), 8, 0, 0x3c0, 0x3c0, 0x1c},
+		{".dynsym", uint32(elf.SHT_DYNSYM), 7, 1, uint64(elf.SHF_ALLOC), 8, 18, 0x3e0, 0x3e0, 0xa8},
+		{".dynstr", uint32(elf.SHT_STRTAB), 0, 0, uint64(elf.SHF_ALLOC), 1, 0, 0x488, 0x488, 0x8f},
+		{".gnu.version", uint32(elf.SHT_GNU_VERSYM), 6, 0, uint64(elf.SHF_ALLOC), 2, 2, 0x518, 0x518, 0xe},
+		{".gnu.version_r", uint32(elf.SHT_GNU_VERNEED), 7, 1, uint64(elf.SHF_ALLOC), 8, 0, 0x528, 0x528, 0x30},
+		{".rela.dyn", uint32(elf.SHT_RELA), 6, 0, uint64(elf.SHF_ALLOC), 8, 18, 0x558, 0x558, 0xc0},
+		{".rela.plt", uint32(elf.SHT_RELA), 6, 23, uint64(elf.SHF_ALLOC | elf.SHF_INFO_LINK), 8, 18, 0x618, 0x618, 0x18},
+		{".init", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_EXECINSTR), 4, 0, 0x1000, 0x1000, 0x1b},
+		{".plt", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_EXECINSTR), 16, 10, 0x1020, 0x1020, 0x20},
+		{".text", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_EXECINSTR), 16, 0, 0x1040, 0x1040, 0x118},
+		{".fini", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_EXECINSTR), 4, 0, 0x1158, 0x1158, 0xd},
+		{".rodata", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC), 8, 0, 0x2000, 0x2000, 0x27},
+		{".eh_frame_hdr", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC), 4, 0, 0x2028, 0x2028, 0x24},
+		{".eh_frame", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC), 8, 0, 0x2050, 0x2050, 0x7c},
+		{".init_array", uint32(elf.SHT_INIT_ARRAY), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_WRITE), 8, 8, 0x2dd0, 0x3dd0, 0x8},
+		{".fini_array", uint32(elf.SHT_FINI_ARRAY), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_WRITE), 8, 8, 0x2dd8, 0x3dd8, 0x8},
+		{".dynamic", uint32(elf.SHT_DYNAMIC), 7, 0, uint64(elf.SHF_ALLOC | elf.SHF_WRITE), 8, 10, 0x2de0, 0x3de0, 0x1e0},
+		{".got", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_WRITE), 8, 8, 0x2fc0, 0x3fc0, 0x28},
+		{".got.plt", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_WRITE), 8, 8, 0x2fe8, 0x3fe8, 0x20},
+		{".data", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_WRITE), 8, 0, 0x3008, 0x4008, 0x10},
+		{".bss", uint32(elf.SHT_NOBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_WRITE), 1, 0, 0x3018, 0x4018, 0x8},
+		{".comment", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_STRINGS | elf.SHF_MERGE), 1, 1, 0x3018, 0x0, 0x12},
+		{".debug_aranges", uint32(elf.SHT_PROGBITS), 0, 0, 0, 16, 0, 0x3030, 0x0, 0xf0},
+		{".debug_info", uint32(elf.SHT_PROGBITS), 0, 0, 0, 1, 0, 0x3120, 0x0, 0x594},
+		{".debug_abbrev", uint32(elf.SHT_PROGBITS), 0, 0, 0, 1, 0, 0x36b4, 0x0, 0x1a5},
+		{".debug_line", uint32(elf.SHT_PROGBITS), 0, 0, 0, 1, 0, 0x3859, 0x0, 0x1da},
+		{".debug_str", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_STRINGS | elf.SHF_MERGE), 1, 1, 0x3a33, 0x0, 0x47a},
+		{".debug_line_str", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_STRINGS | elf.SHF_MERGE), 1, 1, 0x3ead, 0x0, 0x13e},
+		{".debug_rnglists", uint32(elf.SHT_PROGBITS), 0, 0, 0, 1, 0, 0x3feb, 0x0, 0x42},
+		{".symtab", uint32(elf.SHT_SYMTAB), 35, 19, 0, 8, 18, 0x4030, 0x0, 0x378},
+		{".strtab", uint32(elf.SHT_STRTAB), 0, 0, 0, 1, 0, 0x43a8, 0x0, 0x1ec},
+		{".shstrtab", uint32(elf.SHT_STRTAB), 0, 0, 0, 1, 0, 0x4594, 0x0, 0x176},
+	},
+	TESTBIN_HELLOWORLD_INTEL32: {{"", uint32(elf.SHT_NULL), 0, 0, 0, 0, 0, 0, 0, 0},
+		{".interp", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC), 1, 0, 0x1b4, 0x1b4, 0x13},
+		{".note.gnu.bu[...]", uint32(elf.SHT_NOTE), 0, 0, uint64(elf.SHF_ALLOC), 4, 0, 0x1c8, 0x1c8, 0x24},
+		{".note.gnu.pr[...]", uint32(elf.SHT_NOTE), 0, 0, uint64(elf.SHF_ALLOC), 4, 0, 0x1ec, 0x1ec, 0x34},
+		{".note.ABI-tag", uint32(elf.SHT_NOTE), 0, 0, uint64(elf.SHF_ALLOC), 4, 0, 0x220, 0x220, 0x20},
+		{".gnu.hash", uint32(elf.SHT_GNU_HASH), 6, 0, uint64(elf.SHF_ALLOC), 4, 4, 0x240, 0x240, 0x20},
+		{".dynsym", uint32(elf.SHT_DYNSYM), 7, 1, uint64(elf.SHF_ALLOC), 4, 10, 0x260, 0x260, 0x80},
+		{".dynstr", uint32(elf.SHT_STRTAB), 0, 0, uint64(elf.SHF_ALLOC), 1, 0, 0x2e0, 0x2e0, 0xa8},
+		{".gnu.version", uint32(elf.SHT_GNU_VERSYM), 6, 0, uint64(elf.SHF_ALLOC), 2, 2, 0x388, 0x388, 0x10},
+		{".gnu.version_r", uint32(elf.SHT_GNU_VERNEED), 7, 1, uint64(elf.SHF_ALLOC), 4, 0, 0x398, 0x398, 0x40},
+		{".rel.dyn", uint32(elf.SHT_REL), 6, 0, uint64(elf.SHF_ALLOC), 4, 8, 0x3d8, 0x3d8, 0x40},
+		{".rel.plt", uint32(elf.SHT_REL), 6, 23, uint64(elf.SHF_ALLOC | elf.SHF_INFO_LINK), 4, 8, 0x418, 0x418, 0x10},
+		{".init", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_EXECINSTR), 4, 0, 0x1000, 0x1000, 0x24},
+		{".plt", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_EXECINSTR), 16, 4, 0x1030, 0x1030, 0x30},
+		{".text", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_EXECINSTR), 16, 0, 0x1060, 0x1060, 0x16d},
+		{".fini", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_EXECINSTR), 4, 0, 0x11d0, 0x11d0, 0x18},
+		{".rodata", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC), 4, 0, 0x2000, 0x2000, 0x27},
+		{".eh_frame_hdr", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC), 4, 0, 0x2028, 0x2028, 0x2c},
+		{".eh_frame", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC), 4, 0, 0x2054, 0x2054, 0x9c},
+		{".init_array", uint32(elf.SHT_INIT_ARRAY), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_WRITE), 4, 4, 0x2ee8, 0x3ee8, 0x4},
+		{".fini_array", uint32(elf.SHT_FINI_ARRAY), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_WRITE), 4, 4, 0x2eec, 0x3eec, 0x4},
+		{".dynamic", uint32(elf.SHT_DYNAMIC), 7, 0, uint64(elf.SHF_ALLOC | elf.SHF_WRITE), 4, 8, 0x2ef0, 0x3ef0, 0xf0},
+		{".got", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_WRITE), 4, 4, 0x2fe0, 0x3fe0, 0x14},
+		{".got.plt", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_WRITE), 4, 4, 0x2ff4, 0x3ff4, 0x14},
+		{".data", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_WRITE), 4, 0, 0x3008, 0x4008, 0x8},
+		{".bss", uint32(elf.SHT_NOBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_WRITE), 1, 0, 0x3010, 0x4010, 0x4},
+		{".comment", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_STRINGS | elf.SHF_MERGE), 1, 1, 0x3010, 0x0, 0x12},
+		{".debug_aranges", uint32(elf.SHT_PROGBITS), 0, 0, 0, 8, 0, 0x3028, 0x0, 0xa8},
+		{".debug_info", uint32(elf.SHT_PROGBITS), 0, 0, 0, 1, 0, 0x30d0, 0x0, 0x581},
+		{".debug_abbrev", uint32(elf.SHT_PROGBITS), 0, 0, 0, 1, 0, 0x3651, 0x0, 0x1b2},
+		{".debug_line", uint32(elf.SHT_PROGBITS), 0, 0, 0, 1, 0, 0x3803, 0x0, 0x1e1},
+		{".debug_str", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_STRINGS | elf.SHF_MERGE), 1, 1, 0x39e4, 0x0, 0x499},
+		{".debug_line_str", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_STRINGS | elf.SHF_MERGE), 1, 1, 0x3e7d, 0x0, 0x13c},
+		{".debug_rnglists", uint32(elf.SHT_PROGBITS), 0, 0, 0, 1, 0, 0x3fb9, 0x0, 0x38},
+		{".symtab", uint32(elf.SHT_SYMTAB), 35, 19, 0, 4, 10, 0x3ff4, 0x0, 0x290},
+		{".strtab", uint32(elf.SHT_STRTAB), 0, 0, 0, 1, 0, 0x4284, 0x0, 0x233},
+		{".shstrtab", uint32(elf.SHT_STRTAB), 0, 0, 0, 1, 0, 0x44b7, 0x0, 0x174},
+	},
+	TESTBIN_HELLOWORLD_INTEL64_NO_DYNSYM: {{"", uint32(elf.SHT_NULL), 0, 0, 0, 0, 0, 0, 0, 0},
+		{".note.gnu.property", uint32(elf.SHT_NOTE), 0, 0, uint64(elf.SHF_ALLOC), 8, 0, 0x270, 0x400270, 0x40},
+		{".note.gnu.build-id", uint32(elf.SHT_NOTE), 0, 0, uint64(elf.SHF_ALLOC), 4, 0, 0x2b0, 0x4002b0, 0x24},
+		{".note.ABI-tag", uint32(elf.SHT_NOTE), 0, 0, uint64(elf.SHF_ALLOC), 4, 0, 0x2d4, 0x4002d4, 0x20},
+		{".rela.plt", uint32(elf.SHT_RELA), 36, 20, uint64(elf.SHF_ALLOC | elf.SHF_INFO_LINK), 8, 18, 0x2f8, 0x4002f8, 0x240},
+		{".init", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_EXECINSTR), 4, 0, 0x1000, 0x401000, 0x1b},
+		{".plt", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_EXECINSTR), 8, 0, 0x1020, 0x401020, 0x90},
+		{".text", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_EXECINSTR), 64, 0, 0x10c0, 0x4010c0, 0x79183},
+		{"__libc_freeres_fn", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_EXECINSTR), 16, 0, 0x7a250, 0x47a250, 0xab8},
+		{".fini", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_EXECINSTR), 4, 0, 0x7ad08, 0x47ad08, 0xd},
+		{".rodata", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC), 32, 0, 0x7b000, 0x47b000, 0x1bc34},
+		{".stapsdt.base", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC), 1, 0, 0x96c34, 0x496c34, 0x1},
+		{".eh_frame", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC), 8, 0, 0x96c38, 0x496c38, 0xb280},
+		{".gcc_except_table", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC), 1, 0, 0xa1eb8, 0x4a1eb8, 0xf6},
+		{".tdata", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_WRITE), 8, 0, 0xa2778, 0x4a2778, 0x18},
+		{".tbss", uint32(elf.SHT_NOBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_WRITE), 8, 0, 0xa2790, 0x4a2790, 0x48},
+		{".init_array", uint32(elf.SHT_INIT_ARRAY), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_WRITE), 8, 8, 0xa2790, 0x4a2790, 0x8},
+		{".fini_array", uint32(elf.SHT_FINI_ARRAY), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_WRITE), 8, 8, 0xa2798, 0x4a2798, 0x8},
+		{".data.rel.ro", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_WRITE), 32, 0, 0xa27a0, 0x4a27a0, 0x3768},
+		{".got", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_WRITE), 8, 0, 0xa5f08, 0x4a5f08, 0xd8},
+		{".got.plt", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_WRITE), 8, 8, 0xa5fe8, 0x4a5fe8, 0xa8},
+		{".data", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_WRITE), 32, 0, 0xa60a0, 0x4a60a0, 0x19f8},
+		{"__libc_subfreeres", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_WRITE), 8, 0, 0xa7a98, 0x4a7a98, 0x48},
+		{"__libc_IO_vtables", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_WRITE), 32, 0, 0xa7ae0, 0x4a7ae0, 0x768},
+		{"__libc_atexit", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_WRITE), 8, 0, 0xa8248, 0x4a8248, 0x8},
+		{".bss", uint32(elf.SHT_NOBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_WRITE), 32, 0, 0xa8250, 0x4a8260, 0x5800},
+		{"__libc_freeres_ptrs", uint32(elf.SHT_NOBITS), 0, 0, uint64(elf.SHF_ALLOC | elf.SHF_WRITE), 8, 0, 0xa8250, 0x4ada60, 0x20},
+		{".comment", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_STRINGS | elf.SHF_MERGE), 1, 1, 0xa8250, 0x0, 0x12},
+		{".note.stapsdt", uint32(elf.SHT_NOTE), 0, 0, 0, 4, 0, 0xa8264, 0x0, 0x14d8},
+		{".debug_aranges", uint32(elf.SHT_PROGBITS), 0, 0, 0, 16, 0, 0xa9740, 0x0, 0x120},
+		{".debug_info", uint32(elf.SHT_PROGBITS), 0, 0, 0, 1, 0, 0xa9860, 0x0, 0x997},
+		{".debug_abbrev", uint32(elf.SHT_PROGBITS), 0, 0, 0, 1, 0, 0xaa1f7, 0x0, 0x28f},
+		{".debug_line", uint32(elf.SHT_PROGBITS), 0, 0, 0, 1, 0, 0xaa486, 0x0, 0x24f},
+		{".debug_str", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_STRINGS | elf.SHF_MERGE), 1, 1, 0xaa6d5, 0x0, 0x492},
+		{".debug_line_str", uint32(elf.SHT_PROGBITS), 0, 0, uint64(elf.SHF_STRINGS | elf.SHF_MERGE), 1, 1, 0xaab67, 0x0, 0x14d},
+		{".debug_rnglists", uint32(elf.SHT_PROGBITS), 0, 0, 0, 1, 0, 0xaacb4, 0x0, 0x42},
+		{".symtab", uint32(elf.SHT_SYMTAB), 37, 783, 0, 8, 18, 0xaacf8, 0x0, 0xc210},
+		{".strtab", uint32(elf.SHT_STRTAB), 0, 0, 0, 1, 0, 0xb6f08, 0x0, 0x74b4},
+		{".shstrtab", uint32(elf.SHT_STRTAB), 0, 0, 0, 1, 0, 0xbe3bc, 0x0, 0x1b7},
+	},
+}
+
+func TestElfSectionsArray(t *testing.T) {
+	for path, wantSectionsArray := range elfSectionsArrayTest {
+		var obj ElfObj
+		if err := obj.ElfOpenObject(path, ELF_LOAD_F_FORENSICS); err != nil {
+			t.Errorf("ElfOpenObject() failed while testing ElfSectionIndexByName()")
+			continue
+		}
+		gotSectionsArray := obj.ElfSectionsArray()
+		var failMsg string
+
+		gLen := len(gotSectionsArray)
+		wLen := len(wantSectionsArray)
+
+		if gLen != wLen {
+			failMsg = fmt.Sprintf("gotSectionsArray length %d => and wantSectionsArray length %d", gLen, wLen)
+		} else {
+			for i := range gotSectionsArray {
+				if gotSectionsArray[i] != wantSectionsArray[i] {
+					failMsg = fmt.Sprintf("%+v != %+v", gotSectionsArray[i], wantSectionsArray[i])
+					break
+				}
+			}
+		}
+
+		if failMsg != "" {
+			t.Errorf("TestElfSectionsArray(): \"%s\" in bin %s", failMsg, path)
+		}
+
+		obj.ElfCloseObject()
+	}
+}
