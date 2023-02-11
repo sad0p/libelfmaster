@@ -88,6 +88,11 @@ int elf_section_by_index_w(elfobj_t *obj, unsigned int index, struct elf_section
 int elf_section_index_by_name_w(elfobj_t *obj, const char *name, uint64_t *index) {
 	return (int)elf_section_index_by_name(obj, name, index);
 }
+
+int elf_segment_by_index_w(elfobj_t *obj, uint64_t index, struct elf_segment *segment)
+{
+	return (int)elf_segment_by_index(obj, index, segment);
+}
 */
 import "C"
 
@@ -399,7 +404,7 @@ func (o *ElfObj) ElfSectionIndexByName(name string, index *uint64) (ret bool) {
 */
 
 func (o *ElfObj) ElfSectionsArray() (sectionsArray []ElfSection) {
-	var sNdx uint32 = 0
+	var sNdx uint32
 	for {
 		var section ElfSection
 		if ok := o.ElfSectionByIndex(sNdx, &section); !ok {
@@ -407,6 +412,40 @@ func (o *ElfObj) ElfSectionsArray() (sectionsArray []ElfSection) {
 		}
 		sectionsArray = append(sectionsArray, section)
 		sNdx++
+	}
+	return
+}
+
+type ElfSegment struct {
+	Type     uint32
+	Flags    uint32
+	Offset   uint64
+	PAddress uint64
+	VAddress uint64
+	Filesz   uint64
+	Memsz    uint64
+	Align    uint64
+	//Index    uint32
+}
+
+func convertElfSegment(from *C.struct_elf_segment, to *ElfSegment) {
+	to.Type = uint32(from._type)
+	to.Flags = uint32(from.flags)
+	to.Offset = uint64(from.offset)
+	to.PAddress = uint64(from.paddr)
+	to.VAddress = uint64(from.vaddr)
+	to.Filesz = uint64(from.filesz)
+	to.Memsz = uint64(from.memsz)
+	to.Align = uint64(from.align)
+	//to.Index = uint32(from.index)
+}
+
+func (o *ElfObj) ElfSegmentByIndex(index uint64, segment *ElfSegment) (ret bool) {
+	var localSegment C.struct_elf_segment
+	ret = intToBool(int(C.elf_segment_by_index_w(&o.obj, C.uint64_t(index), &localSegment)))
+
+	if ret {
+		convertElfSegment(&localSegment, segment)
 	}
 	return
 }

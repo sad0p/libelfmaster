@@ -842,3 +842,58 @@ func TestElfSectionsArray(t *testing.T) {
 		obj.ElfCloseObject()
 	}
 }
+
+var elfSegmentByIndexTests = map[string]map[uint64]ElfSegment{
+	TESTBIN_HELLOWORLD_INTEL64: {
+		0:  {uint32(elf.PT_PHDR), uint32(elf.PF_R), 0x40, 0x40, 0x40, 0x2d8, 0x2d8, 0x8},
+		1:  {uint32(elf.PT_INTERP), uint32(elf.PF_R), 0x318, 0x318, 0x318, 0x1c, 0x1c, 0x1},
+		2:  {uint32(elf.PT_LOAD), uint32(elf.PF_R), 0x0, 0x0, 0x0, 0x630, 0x630, 0x1000},
+		3:  {uint32(elf.PT_LOAD), uint32(elf.PF_R | elf.PF_X), 0x1000, 0x1000, 0x1000, 0x165, 0x165, 0x1000},
+		4:  {uint32(elf.PT_LOAD), uint32(elf.PF_R), 0x2000, 0x2000, 0x2000, 0xcc, 0xcc, 0x1000},
+		5:  {uint32(elf.PT_LOAD), uint32(elf.PF_R | elf.PF_W), 0x2dd0, 0x3dd0, 0x3dd0, 0x248, 0x250, 0x1000},
+		6:  {uint32(elf.PT_DYNAMIC), uint32(elf.PF_R | elf.PF_W), 0x2de0, 0x3de0, 0x3de0, 0x1e0, 0x1e0, 0x8},
+		7:  {uint32(elf.PT_NOTE), uint32(elf.PF_R), 0x338, 0x338, 0x338, 0x40, 0x40, 0x8},
+		8:  {uint32(elf.PT_NOTE), uint32(elf.PF_R), 0x378, 0x378, 0x378, 0x44, 0x44, 0x4},
+		9:  {uint32(elf.PT_GNU_PROPERTY), uint32(elf.PF_R), 0x338, 0x338, 0x338, 0x40, 0x40, 0x8},
+		10: {uint32(elf.PT_GNU_EH_FRAME), uint32(elf.PF_R), 0x2028, 0x2028, 0x2028, 0x24, 0x24, 0x4},
+		11: {uint32(elf.PT_GNU_STACK), uint32(elf.PF_R | elf.PF_W), 0x0, 0x0, 0x0, 0x0, 0x0, 0x10},
+		12: {uint32(elf.PT_GNU_RELRO), uint32(elf.PF_R), 0x2dd0, 0x3dd0, 0x3dd0, 0x230, 0x230, 0x1},
+	},
+
+	TESTBIN_HELLOWORLD_INTEL32: {0: {uint32(elf.PT_PHDR), uint32(elf.PF_R), 0x34, 0x34, 0x34, 0x180, 0x180, 0x4},
+		1:  {uint32(elf.PT_INTERP), uint32(elf.PF_R), 0x1b4, 0x1b4, 0x1b4, 0x13, 0x13, 0x1},
+		2:  {uint32(elf.PT_LOAD), uint32(elf.PF_R), 0x0, 0x0, 0x0, 0x428, 0x428, 0x1000},
+		3:  {uint32(elf.PT_LOAD), uint32(elf.PF_R | elf.PF_X), 0x1000, 0x1000, 0x1000, 0x1e8, 0x1e8, 0x1000},
+		4:  {uint32(elf.PT_LOAD), uint32(elf.PF_R), 0x2000, 0x2000, 0x2000, 0xf0, 0xf0, 0x1000},
+		5:  {uint32(elf.PT_LOAD), uint32(elf.PF_R | elf.PF_W), 0x2ee8, 0x3ee8, 0x3ee8, 0x128, 0x12c, 0x1000},
+		6:  {uint32(elf.PT_DYNAMIC), uint32(elf.PF_R | elf.PF_W), 0x2ef0, 0x3ef0, 0x3ef0, 0xf0, 0xf0, 0x4},
+		7:  {uint32(elf.PT_NOTE), uint32(elf.PF_R), 0x1c8, 0x1c8, 0x1c8, 0x78, 0x78, 0x4},
+		8:  {uint32(elf.PT_GNU_PROPERTY), uint32(elf.PF_R), 0x1ec, 0x1ec, 0x1ec, 0x34, 0x34, 0x4},
+		9:  {uint32(elf.PT_GNU_EH_FRAME), uint32(elf.PF_R), 0x2028, 0x2028, 0x2028, 0x2c, 0x2c, 0x4},
+		10: {uint32(elf.PT_GNU_STACK), uint32(elf.PF_R | elf.PF_W), 0x0, 0x0, 0x0, 0x0, 0x0, 0x10},
+		11: {uint32(elf.PT_GNU_RELRO), uint32(elf.PF_R), 0x2ee8, 0x3ee8, 0x3ee8, 0x118, 0x118, 0x1},
+	},
+}
+
+func TestElfSegmentByIndex(t *testing.T) {
+	for path, indexSegmentsMap := range elfSegmentByIndexTests {
+		var obj ElfObj
+		if err := obj.ElfOpenObject(path, ELF_LOAD_F_FORENSICS); err != nil {
+			t.Errorf("ElfOpenObject() failed while testing ElfSegmentByIndex()")
+			continue
+		}
+
+		for sIndex, wantSegment := range indexSegmentsMap {
+			var gotSegment ElfSegment
+			switch b := obj.ElfSegmentByIndex(sIndex, &gotSegment); b {
+			case true:
+				if gotSegment != wantSegment {
+					t.Errorf("TestElfSegmentByIndex(): got segment %+v and wanted segment %+v in binary %s", gotSegment, wantSegment, path)
+				}
+			default:
+				t.Errorf("TestElfSegmentByIndex(): ElfSegmentsByIndex() return false for index %d in binary %s", sIndex, path)
+			}
+		}
+		obj.ElfCloseObject()
+	}
+}
