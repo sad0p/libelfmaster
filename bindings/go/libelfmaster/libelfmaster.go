@@ -425,7 +425,7 @@ type ElfSegment struct {
 	Filesz   uint64
 	Memsz    uint64
 	Align    uint64
-	//Index    uint32
+	Index    uint32
 }
 
 func convertElfSegment(from *C.struct_elf_segment, to *ElfSegment) {
@@ -437,7 +437,7 @@ func convertElfSegment(from *C.struct_elf_segment, to *ElfSegment) {
 	to.Filesz = uint64(from.filesz)
 	to.Memsz = uint64(from.memsz)
 	to.Align = uint64(from.align)
-	//to.Index = uint32(from.index)
+	to.Index = uint32(from.index)
 }
 
 func (o *ElfObj) ElfSegmentByIndex(index uint64, segment *ElfSegment) (ret bool) {
