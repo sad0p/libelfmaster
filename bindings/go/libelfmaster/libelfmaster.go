@@ -449,3 +449,17 @@ func (o *ElfObj) ElfSegmentByIndex(index uint64, segment *ElfSegment) (ret bool)
 	}
 	return
 }
+
+func (o *ElfObj) ElfSegmentsArray() (segArray []ElfSegment) {
+	var segNdx uint64
+
+	for {
+		var segment ElfSegment
+		if ok := o.ElfSegmentByIndex(segNdx, &segment); !ok {
+			break
+		}
+		segArray = append(segArray, segment)
+		segNdx++
+	}
+	return
+}

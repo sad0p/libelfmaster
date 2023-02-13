@@ -899,3 +899,21 @@ func TestElfSegmentByIndex(t *testing.T) {
 		obj.ElfCloseObject()
 	}
 }
+
+func TestElfSegmentArray(t *testing.T) {
+	for path, indexSegmentsMap := range elfSegmentByIndexTests {
+		var obj ElfObj
+		if err := obj.ElfOpenObject(path, ELF_LOAD_F_FORENSICS); err != nil {
+			t.Errorf("ElfOpenObject() failed while testing ElfSegmentArray()")
+			continue
+		}
+
+		gotArray := obj.ElfSegmentsArray()
+		for i := range gotArray {
+			if gotArray[i] != indexSegmentsMap[uint64(i)] {
+				t.Errorf("TestElfSegmentArray(): gotArray[%d] %+v != wantArray[%d] %+v", i, gotArray[i], i, indexSegmentsMap[uint64(i)])
+			}
+		}
+		obj.ElfCloseObject()
+	}
+}
