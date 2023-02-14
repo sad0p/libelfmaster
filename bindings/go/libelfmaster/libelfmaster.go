@@ -283,6 +283,11 @@ func (o *ElfObj) ElfDtagCount() (count uint64) {
 	return
 }
 
+func (o *ElfObj) ElfSegmentCount() (count uint64) {
+	count = uint64(C.elf_segment_count(&o.obj))
+	return
+}
+
 func convertElfSymbol(from *C.struct_elf_symbol, to *ElfSymbol) {
 	to.Name = C.GoString(from.name)
 	to.Value = uint64(from.value)

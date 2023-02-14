@@ -471,6 +471,35 @@ func TestElfDtagCount(t *testing.T) {
 	}
 }
 
+var elfSegmentCountTests = map[string]uint64{
+	TESTBIN_HELLOWORLD_INTEL64:            13,
+	TESTBIN_HELLOWORLD_INTEL64_STATIC:     10,
+	TESTBIN_HELLOWORLD_INTEL64_NO_DYNSYM:  10,
+	TESTBIN_HELLOWORLD_INTEL64_NO_SYMTAB:  13,
+	TESTBIN_HELLOWORLD_INTEL64_STATIC_PIE: 12,
+	TESTBIN_HELLOWORLD_INTEL32:            12,
+	TESTBIN_HELLOWORLD_INTEL32_STATIC:     9,
+	TESTBIN_HELLOWORLD_INTEL32_NO_DYNSYM:  9,
+	TESTBIN_HELLOWORLD_INTEL32_NO_SYMTAB:  12,
+	TESTBIN_HELLOWORLD_INTEL32_STATIC_PIE: 11,
+}
+
+func TestElfSegmentCount(t *testing.T) {
+	for path, wantSegmentCount := range elfSegmentCountTests {
+		var obj ElfObj
+		if err := obj.ElfOpenObject(path, ELF_LOAD_F_FORENSICS); err != nil {
+			t.Errorf("ElfOpenObject() failed while performing TestElfSegmentCount()")
+			continue
+		}
+
+		gotSegmentCount := obj.ElfSegmentCount()
+		if gotSegmentCount != wantSegmentCount {
+			t.Errorf("TestElfSegmentCount(): got %d and wanted %d in binary %s", gotSegmentCount, wantSegmentCount, path)
+		}
+		obj.ElfCloseObject()
+	}
+}
+
 var elfSymbolByNameTests = map[string]ElfSymbol{
 	TESTBIN_HELLOWORLD_INTEL64:           {"_init", 0x1000, 0, 12, uint8(elf.STB_GLOBAL), uint8(elf.STT_FUNC), uint8(elf.STV_HIDDEN)},
 	TESTBIN_HELLOWORLD_INTEL32:           {"main", 0x118d, 60, 14, uint8(elf.STB_GLOBAL), uint8(elf.STT_FUNC), uint8(elf.STV_DEFAULT)},
