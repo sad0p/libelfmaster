@@ -446,6 +446,31 @@ func TestElfDynSymTabCount(t *testing.T) {
 	}
 }
 
+var elfDtagCountTests = map[string]uint64{
+	TESTBIN_HELLOWORLD_INTEL64:            26,
+	TESTBIN_HELLOWORLD_INTEL32:            26,
+	TESTBIN_HELLOWORLD_INTEL32_NO_DYNSYM:  0,
+	TESTBIN_HELLOWORLD_INTEL32_NO_SYMTAB:  26,
+	TESTBIN_HELLOWORLD_INTEL32_STATIC:     0,
+	TESTBIN_HELLOWORLD_INTEL32_STATIC_PIE: 18,
+}
+
+func TestElfDtagCount(t *testing.T) {
+	for path, wantDtagCount := range elfDtagCountTests {
+		var obj ElfObj
+		if err := obj.ElfOpenObject(path, ELF_LOAD_F_FORENSICS); err != nil {
+			t.Errorf("ElfOpenObject() failed while performing TestElfDtagCount()")
+			continue
+		}
+
+		gotDtagCount := obj.ElfDtagCount()
+		if gotDtagCount != wantDtagCount {
+			t.Errorf("TestElfDtagCount(): got %d and wanted %d", gotDtagCount, wantDtagCount)
+		}
+		obj.ElfCloseObject()
+	}
+}
+
 var elfSymbolByNameTests = map[string]ElfSymbol{
 	TESTBIN_HELLOWORLD_INTEL64:           {"_init", 0x1000, 0, 12, uint8(elf.STB_GLOBAL), uint8(elf.STT_FUNC), uint8(elf.STV_HIDDEN)},
 	TESTBIN_HELLOWORLD_INTEL32:           {"main", 0x118d, 60, 14, uint8(elf.STB_GLOBAL), uint8(elf.STT_FUNC), uint8(elf.STV_DEFAULT)},

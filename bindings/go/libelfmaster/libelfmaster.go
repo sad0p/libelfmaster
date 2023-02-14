@@ -93,6 +93,7 @@ int elf_segment_by_index_w(elfobj_t *obj, uint64_t index, struct elf_segment *se
 {
 	return (int)elf_segment_by_index(obj, index, segment);
 }
+
 */
 import "C"
 
@@ -274,6 +275,11 @@ func (o *ElfObj) ElfDynSymTabCount(count *uint64) (ret bool) {
 	if ret {
 		*count = uint64(localCount)
 	}
+	return
+}
+
+func (o *ElfObj) ElfDtagCount() (count uint64) {
+	count = uint64(C.elf_dtag_count(&o.obj))
 	return
 }
 
