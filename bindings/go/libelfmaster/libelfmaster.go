@@ -198,10 +198,6 @@ func (o *ElfObj) ElfLinkingType() string {
 	}
 }
 
-func (o *ElfObj) ElfMachine() uint16 {
-	return uint16(C.elf_machine(&o.obj))
-}
-
 func (o *ElfObj) ElfInterpreterPath() (string, error) {
 	switch v := C.GoString(C.elf_interpreter_path(&o.obj)); len(v) {
 	case 0:
@@ -233,6 +229,10 @@ func (o *ElfObj) ElfType() uint32 {
 
 func (o *ElfObj) ElfSize() uint64 {
 	return uint64(C.elf_size(&o.obj))
+}
+
+func (o *ElfObj) ElfMachine() uint16 {
+	return uint16(C.elf_machine(&o.obj))
 }
 
 func (o *ElfObj) ElfOffsetPointerSlice(off uint64, length uint64) ([]byte, error) {
