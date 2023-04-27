@@ -905,11 +905,11 @@ const INTERP_32_PATH = "/lib/ld-linux.so.2"
 
 var elfSectionPointerTest = map[elf.Class]map[string]uint64{
 	elf.ELFCLASS64: {TESTBIN_HELLOWORLD_INTEL64: 0x318},
-	elf.ELFCLASS32: {TESTBIN_HELLOWORLD_INTEL32: 0x0},
+	elf.ELFCLASS32: {TESTBIN_HELLOWORLD_INTEL32: 0x1b4},
 }
 
 func TestElfSectionPointer(t *testing.T) {
-	classes := []elf.Class{elf.ELFCLASS64, elf.ELFCLASS64}
+	classes := []elf.Class{elf.ELFCLASS64, elf.ELFCLASS32}
 	for i := range classes {
 		c := classes[i]
 		for path, offset := range elfSectionPointerTest[c] {
