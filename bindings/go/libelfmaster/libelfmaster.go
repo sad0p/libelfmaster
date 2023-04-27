@@ -427,6 +427,16 @@ func (o *ElfObj) ElfSectionsArray() (sectionsArray []ElfSection) {
 	return
 }
 
+func (o *ElfObj) ElfSectionPointer(sectionPtr interface{}) (ret unsafe.Pointer) {
+	switch v := sectionPtr.(type) {
+	case *elf.Section64:
+		ret = unsafe.Pointer(C.elf_section_pointer(&o.obj, unsafe.Pointer(v)))
+	case *elf.Section32:
+		ret = unsafe.Pointer(C.elf_section_pointer(&o.obj, unsafe.Pointer(v)))
+	}
+	return
+}
+
 type ElfSegment struct {
 	Type     uint32
 	Flags    uint32

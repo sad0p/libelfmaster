@@ -899,6 +899,56 @@ func TestElfSectionsArray(t *testing.T) {
 	}
 }
 
+const MAX_INTERP_LEN = 100
+const INTERP_64_PATH = "/lib64/ld-linux-x86-64.so.2"
+const INTERP_32_PATH = "/lib/ld-linux.so.2"
+
+var elfSectionPointerTest = map[elf.Class]map[string]uint64{
+	elf.ELFCLASS64: {TESTBIN_HELLOWORLD_INTEL64: 0x318},
+	elf.ELFCLASS32: {TESTBIN_HELLOWORLD_INTEL32: 0x0},
+}
+
+func TestElfSectionPointer(t *testing.T) {
+	classes := []elf.Class{elf.ELFCLASS64, elf.ELFCLASS64}
+	for i := range classes {
+		c := classes[i]
+		for path, offset := range elfSectionPointerTest[c] {
+			var obj ElfObj
+			if err := obj.ElfOpenObject(path, ELF_LOAD_F_FORENSICS); err != nil {
+				t.Errorf("ElfOpenObject() failed while testing ElfSectionPointer()")
+				continue
+			}
+
+			switch c {
+			case elf.ELFCLASS64:
+				var section elf.Section64
+				section.Off = offset
+				if sp := obj.ElfSectionPointer(&section); sp != nil {
+					interpStr := string((*[MAX_INTERP_LEN]byte)(sp)[:len(INTERP_64_PATH)])
+					if interpStr != INTERP_64_PATH {
+						t.Errorf("TestElfSectionPointer: looking for interpreter; wanted %s and got %s", INTERP_64_PATH, interpStr)
+					}
+				} else {
+					t.Errorf("TestElfSectionPointer: got nil reference for 0x%x (offset).", offset)
+				}
+
+			case elf.ELFCLASS32:
+				var section elf.Section32
+				section.Off = uint32(offset)
+
+				if sp := obj.ElfSectionPointer(&section); sp != nil {
+					interpStr := string((*[MAX_INTERP_LEN]byte)(sp)[:len(INTERP_32_PATH)])
+					if interpStr != INTERP_32_PATH {
+						t.Errorf("TestElfSectionPointer: looking for interpreter; wanted %s and got %s", INTERP_32_PATH, interpStr)
+					}
+				} else {
+					t.Errorf("TestElfSectionPointer: got nil reference for 0x%x (offset).", offset)
+				}
+			}
+		}
+	}
+}
+
 var elfSegmentByIndexTests = map[string]map[uint64]ElfSegment{
 	TESTBIN_HELLOWORLD_INTEL64: {
 		0:  {uint32(elf.PT_PHDR), uint32(elf.PF_R), 0x40, 0x40, 0x40, 0x2d8, 0x2d8, 0x8, 0},
